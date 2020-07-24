@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+        button {
+            border: 2px solid #f0f0f0;
+            padding: 2px;
+            font-size: x-large;
+        }
+    </style>
+</head>
+<body>
+<iframe id="map" style="width: 100%;height: 60vh;" frameborder="0"></iframe>
+<div style="padding: 20px;">
+    <button onclick="addPoint()">添加点</button>
+    <button onclick="mapClick = !mapClick">开关点击事件</button>
+</div>
+<script src="./../src/plugin-js/PromiseQueue.js"></script>
+<script src="./../src/plugin-js/index.js"></script>
+<script src="./../src/plugin-js/marker.js"></script>
+<script src="./../src/plugin-js/draw.js"></script>
+<script src="./../src/plugin-js/TimeSlider.js"></script>
+<script>
+    window.relativePath = "./../src";
+    let mapClick = false;
+    let getPointUrl = 'http://10.10.1.132:8080/geoserver/draught/wms';
+    let mapOnclick = function() {};
+    let obj = {
+        theMarkerInstance: null,
+        theDrawerInstance: null,
+        ShowOneLayerInstance: null,
+        TimeSliderInstance: null,
+    };
+    let pg = new PromiseQueue(obj)            // PromiseQueue.js
+        // 初始化 核心 构造器                    // index.js
+        .add(function ($this,cb) {
+            $this.obj.theIfrInstance = ifrInstance("map",function (action) {
+                console.log(action);
+                if (action.target === "map" && action.type === "click") {
+                    if (mapClick) {
+                        mapOnclick(action);
+                    }
+                } else if (action.target === "timeSlider" && action.type === "layerChange") {
+                    mapOnclick = function($action) {
+                        $this.obj.theIfrInstance.addMapOnClickToShowInfo(getPointUrl,action.data.params.layers,$action.data);
+                    };
+                    console.log(action);
+                }
+            });
+            cb();
+        })
+        // 初始化地图，主要是加载 相关的 js 和 css // index.js
+        .add(function ($this,cb) {
+            $this.obj.theIfrInstance.initFrameBase(cb);
+        })
+        // 等待 L 脚本完成加载                   // index.js
+        .add(function ($this,cb) {
+            let id = setInterval(function () {
+                $this.obj.theIfrInstance.testRun("L",function () {
+                    clearInterval(id);
+                    cb();
+                });
+            });
+        })
+        // 初始化地图元素和添加一个右下角的图例     // index.js
+        .add(function ($this,cb) {
+            $this.obj.theIfrInstance.initMapDom("map");
+            $this.obj.theIfrInstance.showLegend('http://10.10.1.132:8081/table/image/station_colorMap.png');
+            cb();
+        })
+        // 初始化 marker                       // marker.js
+        .add(function ($this,cb) {
+            $this.obj.theMarkerInstance = marker().init($this.obj.theIfrInstance,cb);
+        })
+        // 初始化 drawer                       // draw.js
+        .add(function ($this,cb) {
+            $this.obj.theDrawerInstance = draw().init($this.obj.theIfrInstance,cb);
+        })
+        // 初始化 时间条                        // TimeSlider.js
+        .add(function ($this,cb) {
+            $this.obj.TimeSliderInstance = TimeSlider().init($this.obj.theIfrInstance,cb,'draught');
+        })
+        // 初始化完成，这里可以做自己的事情
+        // 如果没必要用到 $this 可以使用 setCallBack 来完成
+        .add(function ($this,cb) {
+            $this.obj.TimeSliderInstance.refreshTimeSlider('draught');
+            $this.obj.theDrawerInstance.initDraw();
+            console.log("ok");
+            cb();
+        })
+        // .setCallBack()
+        .next();
+    let pointId = 0;
+    const addPoint = function () {
+        let lat = function () {
+            return Math.random() * 20 + 35;
+        }
+        let lng = function () {
+            return Math.random() * 60 + 40;
+        }
+        obj.theMarkerInstance.addStationDivIcon({
+            lat:lat(),
+            lng:lng(),
+            pngUrl:"http://10.10.1.132:8081/table/image/station.png",
+            stationName:"IBAS-" + pointId,
+            id:"IBAS-" + pointId
+        });
+        pointId++;
+    }
+</script>
+</body>
+</html>

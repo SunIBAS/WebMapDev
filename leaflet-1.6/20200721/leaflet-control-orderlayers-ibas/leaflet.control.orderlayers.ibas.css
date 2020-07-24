@@ -1,0 +1,51 @@
+.leaflet-control-layers {
+	width: 150px;
+	padding: 10px !important;
+}
+
+.leaflet-control-layers-separator {
+	float: left;
+    width: 100%;
+}
+
+.leaflet-control-layers .leaflet-control-layers-title {
+	font-size: 1.2em;
+	margin: 0;
+}
+
+.leaflet-control-layers .leaflet-row {
+	float: left;
+    width: 100%;
+}
+
+.leaflet-control-layers .leaflet-row .leaflet-input {
+	float: left;
+	width: 15%;
+}
+
+.leaflet-control-layers .leaflet-row .leaflet-name {
+	float: left;
+	width: 59%;
+}
+
+.leaflet-control-layers .leaflet-row .leaflet-up {
+	float: left;
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAA/klEQVQ4je2QvUrEQBSFz40PYOHCggiCrQmWlsLiA8xkyDtoq2wharfNylY2+hKZSdJYWIngOwQFkd0n2DbMiU0CMf6gdoKnGc65d757ucCfl3xVVEodisiuiJxZaxc/AmitLwCMGzv33o+Konj6FkApNROR4168CIJglKbpYzcMPpg86X1eNu8GyVtjzNZnANFaXwE47WRjkqGItKtvknwwxmy/A8RxfATgoPV1XZ8752Z5ns8B7IvIc1MakrxJkmT1DYDkTmfySZZlk9ZYa1+893udTdarqhoAwErbFEXRHck1ANfOucv+bcqyXIZhaEkORGTqnLvv9/zrl3oFMYVbLEeX4OkAAAAASUVORK5CYII=");
+	background-repeat: no-repeat;
+	background-position: center;
+    height: 20px;
+    width: 16px;
+    opacity: 0.75;
+    cursor: pointer;
+}
+
+.leaflet-control-layers .leaflet-row .leaflet-down {
+	float: left;
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAABBUlEQVQ4je2PMU7DQBRE5y9ukBsOQGIRhCxouAUV1nrX2pJTAKKLEmq4yhr7AqahpERyChfAHRAWK38aJyIro4gyEtPN/HmzWuBfOz9NlmVHcRx3dV1//gZIKU+iKPpomuYLAMTyoLW+6LpuQUTPxpjxEKyUmgohXsIwfDLG7K4NMPM5AAIwcc5V/ohSagpg3tvTtm3H/sANgNfeTpxzlZRyNACDmWdlWS7Qv7hSkiQHQRBUAKI+apj5gYgulx0imltrZyvv/1Nrvc/MjwAO/RsRXVlr79cyvwQAUsqREKLyRq7zPL/zu8IPAKAoinchxBkzv/XR7RC8UWma7imljv8Mbpe+AQXEWbnYo3KmAAAAAElFTkSuQmCC");
+	background-repeat: no-repeat;
+	background-position: center;
+    height: 20px;
+    width: 16px;
+    opacity: 0.75;
+    cursor: pointer;
+}
