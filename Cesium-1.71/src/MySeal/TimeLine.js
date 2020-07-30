@@ -6,9 +6,12 @@ class TimeLine {
     // parametersFromTime => ({year,month,day,dd}) => { return {} }
     // options = { alhpa: 透明度(0~1), speed: 3600 * 24 * 1000 <- 一天 }
     constructor(viewer, startTime, endTime, url, parameters, parametersFromTime, options) {
+        this.dayReg = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
         this.viewer = viewer;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.startTime = '';
+        this.endTime = '';
+        this.setDay(startTime, 'startTime');
+        this.setDay(endTime, 'endTime');
         this.startTimeMill = new Date(startTime).getTime();
         this.url = url;
         this.parameters = parameters;
@@ -17,8 +20,31 @@ class TimeLine {
             alpha: 0.5,
             speed: 3600 * 24 * 1000
         }, (options || {}));
-        this.destroyIndex = -1;
+        // this.destroyIndex = -1;
         viewer.clock.shouldAnimate = true;
+    }
+
+    setDay(val, name) {
+        if (this.dayReg.test(val)) {
+            this[name] = val;
+        } else {
+            let d = val.toString().split('-');
+            if (d[0].length != 4) {
+                throw ("年份需要 4 位数");
+            }
+            if (d[1].length != 2) {
+                d[1] = '0' + d[1];
+            }
+            if (d[2].length != 2) {
+                d[2] = '0' + d[2];
+            }
+            val = d.join('-');
+            if (this.dayReg.test(val)) {
+                this[name] = val;
+            } else {
+                throw new Error("无法格式化当前给定时间，格式化结果为 ${val}")
+            }
+        }
     }
 
     // https://huangwang.github.io/2018/06/09/Cesium小部件animation和timeline的系统时间显示/
@@ -56,20 +82,17 @@ class TimeLine {
     }
 
     set(startTime, endTime, url, parameters, parametersFromTime, options) {
-        if (this.destroyIndex > 0) {
-            console.warn("这里及其不稳定，请谨慎使用")
-            this.viewer.imageryLayers._layers[this.destroyIndex].destroy()
+        if (this.provider) {
+            // console.warn("这里及其不稳定，请谨慎使用")
+            this.viewer.imageryLayers.remove(this.provider);
         }
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.setDay(startTime, 'startTime');
+        this.setDay(endTime, 'endTime');
         this.startTimeMill = new Date(startTime).getTime();
         this.url = url;
         this.parameters = parameters;
         this.parametersFromTime = parametersFromTime;
-        this.options = Object.assign({
-            alpha: 0.5,
-            speed: 3600 * 24 * 1000
-        }, (this.options || {}));
+        this.options = Object.assign(this.options, (options || {}));
         return this;
     }
 
@@ -92,10 +115,14 @@ class TimeLine {
 
         this.imageryLayers = this.viewer.imageryLayers;
         this.layer = this.imageryLayers.addImageryProvider(this.provider);
-        this.destroyIndex = this.imageryLayers._layers.length - 1;
+        // this.destroyIndex = this.imageryLayers._layers.length - 1;
         this.provider.readyPromise.then(function () {
             var start = Cesium.JulianDate.fromIso8601($this.startTime);
             var stop = Cesium.JulianDate.fromIso8601($this.endTime);
+            $this.viewer.clock.startTime = start;
+            $this.viewer.clock.stopTime = stop;
+            $this.viewer.clock.currentTime = start;
+            $this.viewer.timeline.updateFromClock();
 
             $this.viewer.timeline.zoomTo(start, stop);
 

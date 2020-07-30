@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>Hello World!</title>
+    <script src="../src/CesiumUnminified/Cesium.js"></script>
+    <style>
+        @import url(../src/MySeal/bucket.css);
+    </style>
+</head>
+<body>
+<div id="cesiumContainer" class="fullSize"></div>
+<script src="../src/MySeal/Basemap.js"></script>
+<script src="../src/MySeal/setBaseView.js"></script>
+
+<script src="../src/MySeal/BaseMapGroupManager.js"></script>
+<script src="../src/MySeal/MarkerAndGraphicManager/index.js"></script>
+<script>
+    let bmgmc = new MyDefault_BaseMapGroupManager_Setting(document.body, 'cesiumContainer');
+    let viewer = setBaseView(bmgmc.viewer,{
+        ...addBaseMap.output(),
+    });
+
+    window.mgm = installMarkerAndGraphicManager().init(function () {
+        console.log("loaded");
+        showDatas();
+    },viewer);
+    window.manager = window.mgm.getManager();
+
+    handler.lclick(p => {
+        window.p = p;
+        // setTimeout(function () {
+        //     manager.MarkManager.createCustomPopPanel(p.word,{
+        //         "描述": "一个点"
+        //     });
+        // })
+    })
+
+    function showDatas() {
+        [
+            {
+                "locationId": 7,
+                "coord": {"lat":46.18820280032149,"lng":56.79307807772313},
+                "hight": 31,
+                "areaCode": "10",
+                "address": "第一区(新)",
+                "Devices": []
+            },
+            {
+                "locationId": 8,
+                "coord": {"lat":"41","lng":"66"},
+                "hight": 12,
+                "areaCode": "11",
+                "address": "第二区",
+                "Devices": []
+            },
+            {
+                "locationId": 9,
+                "coord": {"lat":"41","lng":"77"},
+                "hight": 1.5,
+                "areaCode": "12",
+                "address": "第三区",
+            },
+            {
+                "locationId": 10,
+                "coord": {"lat":"48","lng":"74"},
+                "hight": 1.5,
+                "areaCode": "13",
+                "address": "第四区",
+            },
+            {
+                "locationId": 11,
+                "coord": {"lat":"54","lng":"59"},
+                "hight": 1.5,
+                "areaCode": "14",
+                "address": "第五区",
+            }
+        ].forEach(sta => {
+            mgm.addMarker(CVT.Wgs842Pixel(sta.coord,viewer),{
+                text: `${sta.areaCode}-${sta.address}`,
+                description: `locationId:${sta.locationId}`
+            })
+        });
+    }
+
+
+</script>
+</body>
+</html>

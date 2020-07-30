@@ -25,9 +25,17 @@
         function startup(Cesium) {
             "use strict";
             //Sandcastle_Begin
-            var viewer = new Cesium.Viewer("cesiumContainer");
+            window.viewer = new Cesium.Viewer("cesiumContainer", {
+                imageryProvider: new Cesium.TileMapServiceImageryProvider({
+                    url: Cesium.buildModuleUrl(
+                        'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga'
+                    )
+                }),
+                baseLayerPicker: false,
+                geocoder: false
+            });
             setBaseView(viewer);
-            window.tl = new TimeLine(viewer, '2018-01-01', '2018-12-31',
+            window.tl = new TimeLine(viewer, '2018-1-1', '2018-12-31',
                 'http://10.10.1.132:8080/geoserver/draught/wms', {
                     styles: 'draught:vhi',
                     service: 'WMS',
@@ -44,26 +52,26 @@
                         layers: `vhi_${year}_${parseInt(dd / 8) + 1}`
                     };
                 }).init().UTC();
-            // setTimeout(function () {
-            //     alert('修改')
-            //     tl.set('2018-01-01', '2018-12-31',
-            //         'http://10.10.1.132:8080/geoserver/draught/wms', {
-            //             styles: 'draught:vhi',
-            //             service: 'WMS',
-            //             transparent: true,
-            //             format: 'image/png'
-            //         },
-            //         function ({
-            //             year,
-            //             month,
-            //             day,
-            //             dd
-            //         }) {
-            //             return {
-            //                 layers: `vhi_${year}_${parseInt(dd / 8) + 1}`
-            //             };
-            //         }).init();
-            // }, 1000 * 10);
+            setTimeout(function () {
+                alert('修改')
+                tl.set('2019-1-1', '2019-5-1',
+                    'http://10.10.1.132:8080/geoserver/draught/wms', {
+                        styles: 'draught:vswi',
+                        service: 'WMS',
+                        transparent: true,
+                        format: 'image/png'
+                    },
+                    function ({
+                        year,
+                        month,
+                        day,
+                        dd
+                    }) {
+                        return {
+                            layers: `vswi_${year}_${parseInt(dd / 8) + 1}`
+                        };
+                    }).init();
+            }, 1000 * 10);
         }
         if (typeof Cesium !== "undefined") {
             window.startupCalled = true;

@@ -13,6 +13,7 @@ body,
     background: rgba(42, 42, 42, 0.8);
     padding: 4px;
     border-radius: 4px;
+    transition: all 2s;
 }
 
 #toolbar input {
@@ -1783,6 +1784,19 @@ body {
     margin: 5px;
     padding: 2px 5px;
     position: absolute
+}
+#toolbar {
+    background: rgba(42, 42, 42, 0.8);
+    padding: 4px;
+    border-radius: 4px;
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+}
+#toolbar:hover {
+    width: auto;
+    height: auto;
+    overflow: auto;
 }
 
 .infoPanel {

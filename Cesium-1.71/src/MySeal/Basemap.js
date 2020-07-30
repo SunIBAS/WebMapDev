@@ -10,6 +10,7 @@ const addBaseMap = (new class {
             iconUrl: icon,
             creationFunction: function () {
                 var provider = new Cesium.UrlTemplateImageryProvider({
+                    UrlTemplateImageryProvider: false,
                     url: url
                 });
                 return provider;
@@ -26,6 +27,7 @@ const addBaseMap = (new class {
             iconUrl: icon,
             creationFunction: function () {
                 var provider = new Cesium.WebMapServiceImageryProvider({
+                    enablePickFeatures: false,
                     url: url,
                     layers : layers,
                     parameters
@@ -45,12 +47,7 @@ const addBaseMap = (new class {
     }
 });
 
-addBaseMap.addXYZ(
-        'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
-        'Google',
-        'Google',
-        './../src/MySeal/images/google.jpg')
-    .addWMS(
+addBaseMap.addWMS(
         'http://10.10.1.132:8080/geoserver/ditu/wms',
         `ditu:google3857`,
         {
@@ -61,4 +58,8 @@ addBaseMap.addXYZ(
         "中亚无云遥感TM 30m",
         "中亚无云遥感TM 30m",
         './../src/MySeal/images/vswi.jpg'
-    );
+    ).addXYZ(
+    'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
+    'Google',
+    'Google',
+    './../src/MySeal/images/google.jpg');
