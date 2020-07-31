@@ -66,7 +66,7 @@ const installMarkerAndGraphicManager = function (srcPath) {
         "style.css","jquery.min.js","FileSaver.min.js",
         "utils.js","GraphicType.js",
         "Graphic.js","GraphicManager.js",
-        "MarkerManager.js","ControlPanel.js"];
+        "MarkerManager.js","MarkerControlPanel.js"];
     const MarkerAndGraphicManager = {
         MarkManager: null,
         GraphicManager: null,
@@ -172,6 +172,9 @@ const installMarkerAndGraphicManager = function (srcPath) {
         // geoserver 服务的 geojson
         // defaultColor = "rgba(x,x,x,x)"
         // flashColor = "rgba(x,x,x,x)"
+        // type 只能是 line 或 polygon
+        // flash 为 true 或 false
+        // 两个 color 是 Cesium.Color 对象
         addOWS(url,type,flash,defaultColor,flashColor) {
             type = type || "line";
             // 默认为 true

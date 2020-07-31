@@ -172,6 +172,132 @@ new TimeLine(viewer, '2018-01-01', '2018-12-31',
     .UTC(); // <- 这个是将日期变成中文，不需要可以不要
 ```
 
+> ### 📂 MarkerAndGraphicManager
+
+> 使用方法，引入 ```MarkerAndGraphicManager/index.js``` 文件
+
+- ```installMarkerAndGraphicManager()``` 返回的对象成员说明如下
+
+|对象成员|说明|
+|----|----|
+|init|初始化方法，需要在回调函数中定义后续动作|
+|panel|右上角的控制面板|
+|getManager|获取管理器|
+|flash|提供矢量闪烁方法|
+|addMarker|添加标记|
+|addPoPanel|添加 pop 弹出方法|
+|addOWS|添加 geoServer 提供的 GeoJson|
+
+- panel 成员
+
+核心代码编写在 MarkerAndGraphicManager/MarkerControlPanel.js 文件中，在 index.js 文件的 init 函数中创建了实例
+
+核心方法是 updateOption ，用于修改显示位置
+
+- getManager 是一个方法
+
+调用将返回一个对象 ```{MarkManager,GraphicManager}```，这个对象中的两个成员是分别复制管理 标记(Marker) 和 折线与面(Graphic)
+
+- GraphicManager 部分方法说明
+
+|方法|说明|
+|----|----|
+|addPolyline|通过若干个点添加一个线|
+|addPolygon|通过若干个点添加一个面|
+|createPolyline|创建一个线(交互方式)|
+|createPolygon|创建一个面(交互方式)|
+|export|导出所有的面或线|
+|import|挨个导入矢量要素|
+
+```javascript
+// addPolyline 和 addPolygon 使用方法相似
+// 注意，面的几个点不需要是闭合的
+// 例如 [{lat:1,lng:1},{lat:2,lng:2},{lat:2,lng:3}]
+// 这里不需要在最后再添加一个 {lat:1,lng:1}
+addPolygon([{lat,lng},{lat,lng},{lat,lng},],"名字",{
+    properties: {
+        objectId: 1,
+        area: 12
+    },
+    defaultStyle: {
+        material: new Cesium.Color.fromCssColorString('rgba(247,224,32,0.5)'),
+        outline: true,
+        outlineColor: new Cesium.Color.fromCssColorString('rgba(255,247,145,1)'),
+        outlineWidth: 2,
+        perPositionHeight: false
+    }
+});
+addPolyline([{lat,lng},{lat,lng},{lat,lng},],"名字",{
+    properties: {
+        objectId: 1,
+        area: 12
+    },
+    defaultStyle: {
+        clampToGround: true,
+        material: Cesium.Color.fromCssColorString('rgba(247,224,32,1)'),
+        width: 3
+    }
+});
+// 如果不想添加样式可以如下写法
+addPolygon([{lat,lng},{lat,lng},{lat,lng},],"名字",{
+    objectId: 1,
+    area: 12
+});
+addPolyline([{lat,lng},{lat,lng},{lat,lng},],"名字",{
+    objectId: 1,
+    area: 12
+});
+
+// 参考 addPolyline 和 addPolygon 中对 import 的调用
+import(feat)
+// 如果 write = true，则将直接下载
+'export(type,write)'
+```
+
+- addMarker 和 addPoPanel 方法
+
+这两个方法是 MarkManager 中定义的方法，放出来是为了调用的方便，仅此而已
+
+其中 addPoPanel 的 infos 参数只有第一个 key:value 会被显示到页面中
+
+```javascript
+window.mgm = installMarkerAndGraphicManager().init(function() {
+    // name 和 tag 中有一个会被舍弃
+    mgm.addPoPanel(p,{name: "haha","tag": "hehe"});
+},viewer);
+```
+
+- addOWS 方法
+
+这个方法可以将 geoJson 添加到地图中，并给定一定范围的自定义，使用方法如下
+
+```javascript
+window.mgm = installMarkerAndGraphicManager().init(function() {
+    // type 只能是 line 或 polygon
+    // flash 为 true 或 false
+    // 两个 color 是 Cesium.Color 对象
+    mgm.addOWS(url,type,flash,defaultColor,flashColor);
+},viewer);
+```
+
+- 大致使用如下
+
+```javascript
+let viewer = new Cesium.Viewer("id");
+// 这里会加载所需的 js 和 css 文件，有网络延迟，所以需要等待
+window.mgm = installMarkerAndGraphicManager().init(function () {
+    // 加载完成可以开始使用了；
+    console.log("loaded");
+    showDatas();
+    mgm.addOWS(
+        'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson',
+        "line",
+        true,
+        "rgb(241,0,0)"
+    );
+},viewer);
+```
+
 ### 简单入门
 
 [BaseMap](./example/BaseMap.html)

@@ -520,6 +520,7 @@ const GraphicManager = (function () {
                 self.addEventListener()
             }
         }
+        // type 只有 POLYGON 和 LineString
         // write 是否立即写出（默认否）
         export(type,write) {
             const json = {
@@ -632,6 +633,7 @@ const GraphicManager = (function () {
             document.dispatchEvent(evt);
         }
 
+        // properties
         // [{lat,lng},{lat,lng},{lat,lng}]
         addPolygon(latLngs,name,properties) {
             let json = JSON.parse(JSON.stringify(this.emptyPolygon));
