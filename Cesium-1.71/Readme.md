@@ -6,8 +6,12 @@
 
 这个文件夹下是我自己封装的一些代码功能分别如下
 
-> Basemap.js
+> ### Basemap.js
 >> 为地图添加底图，目前提供了 ```addWMS``` 和 ```addXYZ``` 两个方法，需要再补充，使用方法和效果如下
+
+>> 执行后将向 window 中添加一个 ImageLegend 对象，用于在画面的右下角添加一个图例 
+
+>> 另外还有一个 handler 对象，这个对象可以简单阅读源码理解，暂时不处理
 
 ![](./images/tl_baseMap.jpg)
 
@@ -36,7 +40,34 @@ var viewer = new Cesium.Viewer("cesiumContainer",{
 });
 ```
 
-> BaseMapGroupManager.js
+- ImageLegend 对象介绍
+
+| 内容 | 说明 |
+| -------- | -------- |
+| updateOption(object) | 更新图片显示参数 |
+| bottom | 提供图片显示参数中的 bottom |
+| bottom.none | 没有时间轴时理想高度 |
+| bottom.timeline | 只有时间轴时理想高度 |
+| bottom.zoom | 有比例尺时理想高度 |
+| option | 图片显示参数 |
+| option.imageMaxWidth | 图片的最大宽度 |
+| option.imageMaxHeight | 图片的最大高度 |
+| option.bottom | 图片距离底部高度 |
+| init(url) | 初始化和指定显示的图示 url |
+
+```javascript
+// updateOption 可以在任何时候调用
+// init 随时可以调用来修改图片
+ImageLegend.updateOption(ImageLegend.bottom.zoom)
+.init("http://localhost:3000/images/a.jpg")
+.updateOption({
+    imageMaxWidth: "130px",
+    imageMaxHeight: 0,
+    bottom: 0
+});
+```
+
+> ### BaseMapGroupManager.js
 >> 这个是在地图的右上角添加一些图层，包括底图和基础图层选择，目前不知道如何修改，必须要将 必应 作为默认地图
 
 ![](./images/tl_baseMapManager.jpg)
@@ -95,7 +126,7 @@ new BaseMapGroupManagerClass(parentDom, id)
 .apply();
 ```
 
-> setBaseView.js
+> ### setBaseView.js
 
 >> 这个只是简单的对地图做简单的设置
 
@@ -167,6 +198,12 @@ var viewer = new Cesium.Viewer("cesiumContainer",{
 
 ![](./images/TimeLine.jpg)
 
+### 标记、折线、多边形
+
+[MarkPolylinePolygon](./example/MarkerManager.html)
+
+![](./images/MarkPolylinePolygon.jpg)
+
 ### 疑难问题的解
 
 > [关于时间轴修改时间的问题](https://github.com/CesiumGS/cesium/issues/3664)
@@ -189,4 +226,5 @@ var viewer = new Cesium.Viewer("cesiumContainer",{
 
 [打包文档](http://mars3d.cn/forcesium/tutorials/cesium-and-webpack/index.html)
 
+[颜色参考](https://cesium.com/docs/cesiumjs-ref-doc/Color.html?classFilter=color)
 

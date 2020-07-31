@@ -21,8 +21,8 @@ function setBaseView(viewer,optioins) {
             roll: 0
         }
     });
-    viewer._cesiumWidget._creditContainer.parentNode.removeChild(viewer._cesiumWidget._creditContainer); //去掉版权信息
     setTimeout(function () {
+        viewer._cesiumWidget._creditContainer.parentNode.removeChild(viewer._cesiumWidget._creditContainer); //去掉版权信息
         let toggle = document.getElementsByClassName('cesium-animation-rectButton');
         if (toggle.length === 4) {
             toggle[0].remove();
@@ -109,7 +109,7 @@ function setBaseView(viewer,optioins) {
     ImageLegend.updateOption(ImageLegend.bottom.zoom);
 
     // 坐标投影
-    window.transformLocation = (function (viewer) {
+    let transformLocation = (function (viewer) {
         var ellipsoid=viewer.scene.globe.ellipsoid;
         return {
             c3LatLng(cartesian3) {
@@ -129,7 +129,6 @@ function setBaseView(viewer,optioins) {
             }
         }
     })(viewer);
-
     // 点击事件
     window.handler = (function () {
         let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

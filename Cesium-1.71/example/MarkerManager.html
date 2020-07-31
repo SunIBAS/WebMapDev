@@ -17,12 +17,13 @@
     </style>
 </head>
 <body>
-<div id="cesiumContainer" class="fullSize"></div>
+
 <script src="../src/MySeal/Basemap.js"></script>
 <script src="../src/MySeal/setBaseView.js"></script>
 
 <script src="../src/MySeal/BaseMapGroupManager.js"></script>
 <script src="../src/MySeal/MarkerAndGraphicManager/index.js"></script>
+<script src="../src/MySeal/ManagerGeoJson.js"></script>
 <script>
     let bmgmc = new MyDefault_BaseMapGroupManager_Setting(document.body, 'cesiumContainer');
     let viewer = setBaseView(bmgmc.viewer,{
@@ -32,6 +33,11 @@
     window.mgm = installMarkerAndGraphicManager().init(function () {
         console.log("loaded");
         showDatas();
+        mgm.addOWS(
+            'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson',
+            "line",
+            true,
+            "rgb(241,0,0)");
     },viewer);
     window.manager = window.mgm.getManager();
 
@@ -42,7 +48,7 @@
         //         "描述": "一个点"
         //     });
         // })
-    })
+    });
 
     function showDatas() {
         [
@@ -91,7 +97,8 @@
         });
     }
 
-
+    // let mgj = new ManagerGeoJson(viewer);
+    // mgj.addGeoJson("haha",'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson');
 </script>
 </body>
 </html>

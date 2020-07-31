@@ -21,7 +21,15 @@ const BaseMapGroupManagerClass = (function() {
             this.parentDom = parentDom;
             this._initDom();
             let $this = this;
+            viewerId = viewerId || "map_viewerId";
             this.option = Object.assign(baseMapOptioin,(option || {}));
+            this.defaultBaseLayerSetted = false;
+            this.firstName = "";
+            this.selectLayer = null;
+            this.NoBing = false;
+            this.defaultBingMapName = "Bing Maps Aerial";
+
+            // todo 不知道为什么总是 不定时会报错
             this.viewer = new Cesium.Viewer(viewerId, this.option);
             this.imageryLayers = this.viewer.imageryLayers;
             this.viewModel = {
@@ -47,7 +55,7 @@ const BaseMapGroupManagerClass = (function() {
                     $this.viewModel.upLayer =
                         $this.viewModel.layers[
                             Math.min($this.viewModel.layers.length - 1, index + 1)
-                        ];
+                            ];
                     $this.viewModel.downLayer = layer;
                     $this._updateLayerList();
                     window.setTimeout(function () {
@@ -64,16 +72,11 @@ const BaseMapGroupManagerClass = (function() {
             this.baseLayers = this.viewModel.baseLayers;
             Cesium.knockout.track(this.viewModel);
             this.toolbar = document.getElementById("toolbar");
-            this.defaultBaseLayerSetted = false;
-            this.firstName = "";
-            this.selectLayer = null;
-            this.NoBing = false;
-            this.defaultBingMapName = "Bing Maps Aerial";
         }
 
         // 初始化 dom 节点，这里可以进行无限初始化，就是可以将页面清空重新渲染 地图
         _initDom() {
-            this.parentDom.innerHTML = `<div id="cesiumContainer" class="fullSize"></div>
+            this.parentDom.innerHTML = `<div id="cesiumContainer" class="fullSize"><div></div></div>
     <div id="loadingOverlay"><h1>Loading...</h1></div>
     <div id="toolbar" class="_map_toolbar_">
         <table>

@@ -15,7 +15,7 @@ const CVT = (function() {
         var lat=Cesium.Math.toDegrees(cartographic.latitude);
         var lng=Cesium.Math.toDegrees(cartographic.longitude);
         var alt=cartographic.height;
-        console.log(`lat=${lat},lng=${lng},alt=${alt}`);
+        // console.log(`lat=${lat},lng=${lng},alt=${alt}`);
         return {
             lat,
             lng,

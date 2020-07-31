@@ -71,6 +71,12 @@ const GraphicManager = (function () {
                 }
 
             };
+            setTimeout((function () {
+                this.emptyPolygon = new CesiumPolygon(viewer, CesiumPolygon.defaultStyle).toGeoJson();
+                this.emptyPolyline = JSON.parse(JSON.stringify(this.emptyPolygon));
+                this.emptyPolyline.geometry.type = "LineString";
+                this.emptyPolyline.properties.gvtype = 1;
+            }).bind(this),100);
             // this.tip.style.display='none'
 
         }
@@ -150,8 +156,6 @@ const GraphicManager = (function () {
                 this.editManager.outlineStyle = option
             }
         }
-
-
 
         /**
          *
@@ -516,7 +520,8 @@ const GraphicManager = (function () {
                 self.addEventListener()
             }
         }
-        export(type) {
+        // write 是否立即写出（默认否）
+        export(type,write) {
             const json = {
                 type: "FeatureCollection",
                 name: "graphic",
@@ -532,8 +537,12 @@ const GraphicManager = (function () {
                     json.features.push(m.toGeoJson())
                 }
             }
-            const blob = new Blob([JSON.stringify(json)], { type: "" });
-            saveAs(blob, type + parseInt(Cesium.getTimestamp()) + '.geojson');
+            if (write) {
+                const blob = new Blob([JSON.stringify(json)], { type: "" });
+                saveAs(blob, type + parseInt(Cesium.getTimestamp()) + '.geojson');
+            } else {
+                return json;
+            }
         }
         import(feat) {
             const id = this.generateId();
@@ -621,6 +630,33 @@ const GraphicManager = (function () {
             this.handler.removeInputAction(MOUSE_MOVE);
 
             document.dispatchEvent(evt);
+        }
+
+        // [{lat,lng},{lat,lng},{lat,lng}]
+        addPolygon(latLngs,name,properties) {
+            let json = JSON.parse(JSON.stringify(this.emptyPolygon));
+            json.geometry.coordinates[0] = latLngs.map(ll => {
+                return [ll.lng,ll.lat,0];
+            });
+            json.properties.name = name;
+            properties = properties || {};
+            for (let i in properties) {
+                json.properties[i] = properties[i];
+            }
+            this.import(json);
+        }
+        // [{lat,lng},{lat,lng},{lat,lng}]
+        addPolyline(latLngs,name,properties) {
+            let json = JSON.parse(JSON.stringify(this.emptyPolyline));
+            json.geometry.coordinates = latLngs.map(ll => {
+                return [ll.lng,ll.lat,0];
+            });
+            json.properties.name = name;
+            properties = properties || {};
+            for (let i in properties) {
+                json.properties[i] = properties[i];
+            }
+            this.import(json);
         }
     };
 })();

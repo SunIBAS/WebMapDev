@@ -602,7 +602,19 @@ class CesiumPolyline extends BaseGraphic {
         positions = positions.map(_ => {
             return Cesium.Cartesian3.fromDegrees(_.lon, _.lat, _.height);
         })
-        const options = { positions, ...CesiumPolyline.defaultStyle, properties };
+        let options = { positions, ...CesiumPolyline.defaultStyle };
+        if ("defaultStyle" in properties && "properties" in properties) {
+            options = {
+                ...options,
+                ...properties.defaultStyle,
+                properties: properties.properties
+            };
+        } else {
+            options = {
+                ...options,
+                properties
+            };
+        }
 
         const pl = new CesiumPolyline(viewer, options);
         pl.stopEdit()
@@ -816,7 +828,7 @@ class CesiumPolygon extends BaseGraphic {
     }
     /**
      * 对于Polygon的要素编辑，需要做下面几件事：
-     * 1.hierarchy变为CallbackProperty
+     * 1.hierarchy 变为 CallbackProperty
      * 2.创建多边形顶点
      * 3.要素高亮显示
      * 4.如果多边形定义了outline，outline也要高亮,outline的positions要变为CallbackProperty
@@ -917,7 +929,15 @@ class CesiumPolygon extends BaseGraphic {
         });
         const options = CesiumPolygon.defaultStyle;
         options.positions = positions;
-        options.properties = properties
+        if ("defaultStyle" in properties && "properties" in properties) {
+            options = {
+                ...options,
+                ...properties.defaultStyle,
+                properties: properties.properties
+            };
+        } else {
+            options.properties = properties
+        }
         const pg = new CesiumPolygon(viewer, options);
         pg.stopEdit()
         return pg

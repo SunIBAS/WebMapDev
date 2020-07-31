@@ -6,6 +6,7 @@ class ManagerGeoJson {
     addGeoJson(name,url) {
         let $this = this;
         Cesium.GeoJsonDataSource.load(url).then(function(dataSource) {
+            window.dataSource = dataSource;
             $this.viewer.dataSources.add(dataSource);
             var entities = dataSource.entities.values;
             var colorHash = {};

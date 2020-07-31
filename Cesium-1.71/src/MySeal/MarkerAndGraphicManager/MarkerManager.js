@@ -58,12 +58,20 @@ class MarkerManager {
             tar: {
                 [GraphicType.MARKER]: "MARKER",
                 [GraphicType.POLYGON]: "POLYGON",
-                [GraphicType.POLYLINE]: "POLYLINE"
+                [GraphicType.POLYLINE]: "POLYLINE",
+                // 附加方法
+                [GraphicType.MARKER + "ADD"]: "MARKERADD",
+                [GraphicType.POLYGON + "ADD"]: "POLYGONADD",
+                [GraphicType.POLYLINE + "ADD"]: "POLYLINEADD",
             },
             MARKER() {
             },
             POLYGON() {},
-            POLYLINE() {}
+            POLYLINE() {},
+            // 附加方法
+            MARKERADD() {},
+            POLYGONADD() {},
+            POLYLINEADD() {}
         };
         this.addDearObjMethod("MARKER",function ($this,obj) {
             $this.selectedMarker = $this.manager.get(obj.id.gvid);
@@ -127,6 +135,8 @@ class MarkerManager {
             ) {
                 if (obj.id.gvtype in self.dearObj.tar) {
                     self.dearObj[self.dearObj.tar[obj.id.gvtype]](self,obj);
+                    // 附加方法
+                    self.dearObj[self.dearObj.tar[obj.id.gvtype + "ADD"]](self,obj);
                 }
                 //   self.popWinPosition = CVT.pixel2Cartesian(e.position, viewer);
                 // self.selectedMarker = manager.get(obj.id.gvid);
@@ -143,7 +153,7 @@ class MarkerManager {
      * @param {string} type表示何种标记,marker:billboard，label:label,model:model
      * @param {string} mode如果mode不是single，将连续添加标记
      */
-    pick({type, mode}, cb) {
+    pick({type, mode, tar}, cb) {
         cb = cb || (() => {});
         this.markMode = type || "marker";
         mode = mode || "single";
@@ -151,7 +161,7 @@ class MarkerManager {
         this.cursorTip.visible = true;
         const handler = this.pickHandler
         const self = this;
-        const id = this.generateId();
+        const id = this.generateId(tar);
         self.markerid = id;
         const manager = this.manager
 
@@ -196,7 +206,7 @@ class MarkerManager {
                     }
                 })
                 window.dispatchEvent(evt)
-                marker = undefined
+                // marker = undefined
                 return cb({id,marker});
             }
             cb(null);
@@ -232,7 +242,7 @@ class MarkerManager {
     // position click.position
     addCustomMarker(position,{description,text},cb) {
         let $this = this;
-        this.pick({},function ({id}) {
+        this.pick({tar: "custom"},function ({id}) {
             setTimeout(() => {
                 $this.manager.get(id).description = description || "暂无";
                 $this.manager.get(id).text = text || "暂无";
@@ -513,6 +523,7 @@ class MarkerManager {
             marker = CesiumBillboard.fromDegrees(this._viewer, coord);
         }
         marker.gvname = feat.properties.name;
+        marker.description = feat.properties.description;
         marker.gvid = id;
         this.manager.set(id, marker);
         const evt = new CustomEvent('marker-add', {
@@ -534,7 +545,9 @@ class MarkerManager {
     addMarker(marker){
         this.manager.set(marker.gvid,marker)
     }
-    export(type) {
+    // noCustom custom 插入的不要导出，默认导出
+    // wirte 是否执行后立即下载，默认 否
+    export(type,noCustom,write) {
         const managers = this.manager.values();
         const json = {
             type: "FeatureCollection",
@@ -546,15 +559,24 @@ class MarkerManager {
             features: []
         };
 
+        type = type || "MARKER";
         for (let m of managers) {
             if (m.type === type) {
-                json.features.push(m.toGeoJson());
+                if (!(noCustom && m.gvid.startsWith("custom-"))) {
+                    let j = m.toGeoJson();
+                    j.properties.description = m.description;
+                    json.features.push(j);
+                }
             }
         }
-        const blob = new Blob([JSON.stringify(json)], { type: "" });
-
-        window.saveAs(blob, type + parseInt(Cesium.getTimestamp()) + ".geojson");
+        if (write) {
+            const blob = new Blob([JSON.stringify(json)], { type: "" });
+            window.saveAs(blob, type + parseInt(Cesium.getTimestamp()) + ".geojson");
+        } else {
+            return json;
+        }
     }
+
     set font(font) {
         this.labelOptions.font = font
         if (this.activeMarker) {
@@ -642,8 +664,11 @@ class MarkerManager {
         this.activeMarker = undefined;
         this.removeEventListener();
     }
-    generateId() {
+    generateId(tar) {
+        tar = tar || "self";
         return (
+            tar +
+            "-" +
             (Math.random() * 10000000).toString(16).substr(0, 4) +
             "-" +
             new Date().getTime() +
