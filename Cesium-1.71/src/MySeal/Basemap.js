@@ -47,7 +47,8 @@ const addBaseMap = (new class {
     }
 });
 
-addBaseMap.addWMS(
+addBaseMap
+    .addWMS(
         'http://10.10.1.132:8080/geoserver/ditu/wms',
         `ditu:google3857`,
         {
@@ -58,8 +59,10 @@ addBaseMap.addWMS(
         "中亚无云遥感TM 30m",
         "中亚无云遥感TM 30m",
         './../src/MySeal/images/vswi.jpg'
-    ).addXYZ(
-    'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
-    'Google',
-    'Google',
-    './../src/MySeal/images/google.jpg');
+    )
+    .addXYZ(
+        'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
+        'Google',
+        'Google',
+        './../src/MySeal/images/google.jpg'
+    );

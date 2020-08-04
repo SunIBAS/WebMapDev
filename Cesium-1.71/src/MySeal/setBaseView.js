@@ -1,4 +1,5 @@
 function setBaseView(viewer,optioins) {
+    // 将底图设置为空，避免地图初始化时去获取token，获取token需要等待而且失败概率很大
     if (typeof viewer == "string") {
         window.viewer = viewer = new Cesium.Viewer(viewer, Object.assign({
             geocoder: false,  // 隐藏查找位置工具
@@ -16,6 +17,7 @@ function setBaseView(viewer,optioins) {
         viewer.imageryLayers.get(0).show = false;
     }
 
+    // 设置地图初始化看到的位置和缩放等级
     viewer.scene.camera.setView({
         // 初始化相机经纬度
         destination: Cesium.Cartesian3.fromDegrees(65, 45, 4000000),
@@ -25,6 +27,7 @@ function setBaseView(viewer,optioins) {
             roll: 0
         }
     });
+    // 删除版权信息和小时钟
     setTimeout(function () {
         viewer._cesiumWidget._creditContainer.parentNode.removeChild(viewer._cesiumWidget._creditContainer); //去掉版权信息
         let toggle = document.getElementsByClassName('cesium-animation-rectButton');
@@ -111,28 +114,6 @@ function setBaseView(viewer,optioins) {
         }
     }).init("http://10.10.1.132:8081/table/image/DRAUGHT_AVI.jpg");
     ImageLegend.updateOption(ImageLegend.bottom.zoom);
-
-    // 坐标投影
-    let transformLocation = (function (viewer) {
-        var ellipsoid=viewer.scene.globe.ellipsoid;
-        return {
-            c3LatLng(cartesian3) {
-                var cartographic=ellipsoid.cartesianToCartographic(cartesian3);
-                var lat=Cesium.Math.toDegrees(cartographic.latitude);
-                var lng=Cesium.Math.toDegrees(cartographic.longitude);
-                var alt=cartographic.height;
-                console.log(`lat=${lat},lng=${lng},alt=${alt}`);
-                return {
-                    lat,
-                    lng,
-                    alt,
-                    // todo 暂时随便写的
-                    x: lat,
-                    y: lng
-                }
-            }
-        }
-    })(viewer);
 
     // handler.lclick(p => {
     //     window.p = p;

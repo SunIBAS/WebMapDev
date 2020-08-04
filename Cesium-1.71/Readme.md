@@ -2,187 +2,26 @@
 
 该项目使用的是 cesium 1.71 版本
 
-### src/MySeal 文件夹中的文件说明
+## 第一部分: src 文件夹中的文件说明
 
-这个文件夹下是我自己封装的一些代码功能分别如下
+### 一、 📂 MarkerAndGraphicManager
 
-> ### Basemap.js
->> 为地图添加底图，目前提供了 ```addWMS``` 和 ```addXYZ``` 两个方法，需要再补充，使用方法和效果如下
-
->> 执行后将向 window 中添加一个 ImageLegend 对象，用于在画面的右下角添加一个图例 
-
->> ~~另外还有一个 handler 对象，这个对象可以简单阅读源码理解，暂时不处理~~
-
-![](./images/tl_baseMap.jpg)
-
-```javascript
-addBaseMap.addXYZ(
-        'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
-        'Google',
-        'Google',
-        './../src/MySeal/images/google.jpg')
-    .addWMS(
-        'http://10.10.1.132:8080/geoserver/ditu/wms',
-        `ditu:google3857`,
-        {
-            service : 'WMS',
-            transparent: true,
-            format: 'image/png'
-        },
-        "中亚无云遥感TM 30m",
-        "中亚无云遥感TM 30m",
-        './../src/MySeal/images/vswi.jpg'
-    );
-// 这里不考虑动态添加的问题好像也没必要，需要的可以自己修改代码
-var viewer = new Cesium.Viewer("cesiumContainer",{
-    // 添加地图
-    ...addBaseMap.output()
-});
+使用方法如下
+```html
+<script src="srcPath/MarkerAndGraphicManager/index.js"></script>
+<script>
+    // 请记住👇这个 mgm 对象
+    window.mgm = installMarkerAndGraphicManager().init(function () {
+        // todo mgm.xxx
+    },viewer);
+</script>
 ```
 
-- ImageLegend 对象介绍
-
-| 内容 | 说明 |
-| -------- | -------- |
-| updateOption(object) | 更新图片显示参数 |
-| bottom | 提供图片显示参数中的 bottom |
-| bottom.none | 没有时间轴时理想高度 |
-| bottom.timeline | 只有时间轴时理想高度 |
-| bottom.zoom | 有比例尺时理想高度 |
-| option | 图片显示参数 |
-| option.imageMaxWidth | 图片的最大宽度 |
-| option.imageMaxHeight | 图片的最大高度 |
-| option.bottom | 图片距离底部高度 |
-| init(url) | 初始化和指定显示的图示 url |
-
-```javascript
-// updateOption 可以在任何时候调用
-// init 随时可以调用来修改图片
-ImageLegend.updateOption(ImageLegend.bottom.zoom)
-.init("http://localhost:3000/images/a.jpg")
-.updateOption({
-    imageMaxWidth: "130px",
-    imageMaxHeight: 0,
-    bottom: 0
-});
-```
-
-> ### BaseMapGroupManager.js
->> 这个是在地图的右上角添加一些图层，包括底图和基础图层选择，目前不知道如何修改，必须要将 必应 作为默认地图
-
-![](./images/tl_baseMapManager.jpg)
-
-- api 如下
-
-| 方法名 | 功能 |
-| -------- | -------- |
-| noBing | 不要必应地图 |
-| addBaseLayerOption | 添加底图 |
-| addBaseLayerOption | 添加底图 |
-| addAdditionalLayerOption | 添加可选图层 |
-| addBingAsDefault | 添加必应地图并设置为默认显示底图 |
-| addWMS | 添加 wms 图层到 底图/可选图层 |
-| addXYZ | 添加 xyz 图层到 底图/可选图层 |
-| setDefaultBaseLayer | 设置默认显示底图 |
-| apply | 完成操作后的默认调用方法 |
-
-> noBing 不要显示 ```必应地图``` ，必须和添加 ```必应地图``` 操作选择一个使用，不然最后一个添加的自定义地图会被替换为 ```必应地图```
-
-```javascript
-// 默认的使用方法
-new BaseMapGroupManagerClass(parentDom,"map")
-    .addWMS() // <- 添加 wms 底图或可选图层
-    .addXYZ() // <- 添加 xyz 底图或可选图层
-    // .addWMS .addXYZ .... <- 持续添加
-    .addBingAsDefault() // <- 有需要可以添加 必应 地图，需要 翻墙获取 token
-                        // name = 'Bing Maps Aerial'
-    .setDefaultBaseLayer("name") // <- 设置默认图层，这个 name 是添加图层的名字
-    .apply("name"); // <- 这个 name 可以不传，特别是已经写了 setDefaultBaseLayer 时
-// 上面的 addWMS 和 addXYZ 可以用 addBaseLayerOption 和 addAdditionalLayerOption 进行替代
-// .setDefaultBaseLayer("name").apply(); 等同下面语句
-// .apply("name");
-
-// 这里的 MyDefault_BaseMapGroupManager_Setting 是我项目中的默认图层的默认写法
-// BaseMapGroupManager.tar.base 指的是添加底图（只能显示一个）
-// BaseMapGroupManager.tar.option 指的是添加基础图层（可以显示多个，显示位置高于底图）
-new BaseMapGroupManagerClass(parentDom, id)
-// .addXYZ(BaseMapGroupManager.tar.base, "Bing Maps Aerial", undefined)
-// .addBingAsDefault() // 与上一句同一个道理
-.noBing()
-.addXYZ(
-    BaseMapGroupManagerClass.tarLayer.base,
-    'Google',
-    'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga'
-).addWMS(
-    BaseMapGroupManagerClass.tarLayer.base,
-    "中亚无云遥感TM 30m",
-    'http://10.10.1.132:8080/geoserver/ditu/wms',
-    `ditu:google3857`, {
-        service: 'WMS',
-        transparent: true,
-    }
-)
-.setDefaultBaseLayer("Google")
-.apply();
-```
-
-> ### setBaseView.js
-
->> 这个只是简单的对地图做简单的设置
-
-> ### TimeLine.js
-
->> 这个是时间线的修改，因为我的项目需要
-
->> 我的需求是显示一年的数据，而一年每 8 天只有一期数据，并且通过 layers 参数来索引影像
-
->> 这里有一个 bug 就是，时间条上的日期偶尔是中文偶尔是英文，不知道为什么
-
-![](./images/ll_clock_timeline.jpg)
-
-```javascript
-// m 年的第 n 期
-// service: WMS
-// layers: vhi_{m}_{n}
-// styles: draught:vhi
-// transparent: true
-// format: image/png
-// 使用方法如下
-// 从 2018-01-01 到 2018-12-31
-// 每 8 天一期
-new TimeLine(viewer, '2018-01-01', '2018-12-31',
-    'http://10.10.1.132:8080/geoserver/draught/wms', {
-        styles: 'draught:vhi',
-        service: 'WMS',
-        transparent: true,
-        format: 'image/png'
-    },
-    function ({
-        year,
-        month,
-        day,
-        dd // 对应闰年是 (1~366) 平年是 (1~365)
-    }) {
-        // 每 8 天一期，这里将天数对 8 求商取整
-        // 如果有需要这里可以附加其他参数去覆盖例如 { layers,styles }
-        return {
-            // 因为这个 imageProvider 无法将 query_layers 进行设置，所以最好在这里设置好
-            // query_layers: `vhi_${year}_${parseInt(dd / 8) + 1}`,
-            layers: `vhi_${year}_${parseInt(dd / 8) + 1}`
-        };
-    }).init()
-    .UTC(); // <- 这个是将日期变成中文，不需要可以不要
-```
-
-> ### 📂 MarkerAndGraphicManager
-
-> 使用方法，引入 ```MarkerAndGraphicManager/index.js``` 文件
-
-- ```installMarkerAndGraphicManager()``` 返回的对象成员说明如下
+上面代码中 ```mgm``` 对象的成员如下
 
 |对象成员|说明|
 |----|----|
-|init|初始化方法，需要在回调函数中定义后续动作|
+|init|初始化方法，需要在回调函数中定义后续动作（用法如上👆）|
 |panel|右上角的控制面板|
 |getManager|获取管理器|
 |flash|提供矢量闪烁方法|
@@ -192,15 +31,19 @@ new TimeLine(viewer, '2018-01-01', '2018-12-31',
 
 - panel 成员
 
+![](./images/markerManagerPanel.jpg)
+
 核心代码编写在 MarkerAndGraphicManager/MarkerControlPanel.js 文件中，在 index.js 文件的 init 函数中创建了实例
 
 核心方法是 updateOption ，用于修改显示位置
+
+```todo``` 另外右上角的功能中，如果有不需要的，或者需要自定义的可以直接修改源码，这部分后期有机会再完成
 
 - getManager 是一个方法
 
 调用将返回一个对象 ```{MarkManager,GraphicManager}```，这个对象中的两个成员是分别复制管理 标记(Marker) 和 折线与面(Graphic)
 
-- GraphicManager 部分方法说明
+> ```GraphicManager``` 部分方法说明
 
 |方法|说明|
 |----|----|
@@ -282,25 +125,173 @@ window.mgm = installMarkerAndGraphicManager().init(function() {
 },viewer);
 ```
 
-- 大致使用如下
+### 二、 📄 Basemap.js
+
+⚠ 可以和下一个脚本对比区分
+
+![](./images/tl_baseMap.jpg)
+
+使用方法如下
 
 ```javascript
-let viewer = new Cesium.Viewer("id");
-// 这里会加载所需的 js 和 css 文件，有网络延迟，所以需要等待
-window.mgm = installMarkerAndGraphicManager().init(function () {
-    // 加载完成可以开始使用了；
-    console.log("loaded");
-    showDatas();
-    mgm.addOWS(
-        'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson',
-        "line",
-        true,
-        "rgb(241,0,0)"
+addBaseMap
+    .addWMS(
+        'http://10.10.1.132:8080/geoserver/ditu/wms',
+        `ditu:google3857`,
+        {
+            service : 'WMS',
+            transparent: true,
+            format: 'image/png'
+        },
+        "中亚无云遥感TM 30m",
+        "中亚无云遥感TM 30m",
+        './../src/MySeal/images/vswi.jpg'
+    )
+    .addXYZ(
+        'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
+        'Google',
+        'Google',
+        './../src/MySeal/images/google.jpg'
     );
-},viewer);
+    var viewer = new Cesium.Viewer("cesiumContainer",{
+        ...addBaseMap.output()
+    });
 ```
 
-### 简单入门
+### 三、 📄 BaseMapGroupManager.js
+
+![](./images/tl_baseMapManager.jpg)
+
+这个也是底图管理，但是和上面的区别是，这里的底图包含两部分，①必须显示的包裹整个地表的一张图层，②可选是否显示覆盖物图层
+
+①例如：谷歌地图、百度地图、必应地图
+
+②例如：铁路、水域、植被、地名
+
+⚠ 如果想要和上一个模块一起使用，请自行完善修改代码，其中，在 ```BaseMapGroupManager.js``` 中，已经在 baseMapOptioin 中取消了 ```右上角 图层选择器```，需要自行传入参数打开
+
+| 方法名 | 功能 |
+| -------- | -------- |
+| noBing | 不要必应地图 |
+| addBaseLayerOption | 添加底图 |
+| addBaseLayerOption | 添加底图 |
+| addAdditionalLayerOption | 添加可选图层 |
+| addBingAsDefault | 添加必应地图并设置为默认显示底图 |
+| addWMS | 添加 wms 图层到 底图/可选图层 |
+| addXYZ | 添加 xyz 图层到 底图/可选图层 |
+| setDefaultBaseLayer | 设置默认显示底图 |
+| apply | 完成操作后的默认调用方法 |
+
+> noBing 表示不要显示 ```必应地图``` ，必须和添加 ```必应地图``` 操作选择一个使用，不然最后一个添加的自定义地图会被替换为 ```必应地图```
+
+使用方法如下
+
+```html
+<body>
+    <script src="srcPath/MySeal/BaseMapGroupManager.js"></script>
+    <script>
+        // 第一个参数是要将地图挂载到哪一个节点中，记住设置这个节点的大小
+        // 第二个是可选参数，定义地图的 id 
+        // 这个方法是事先封装的
+        var bmgmc = new MyDefault_BaseMapGroupManager_Setting(document.body, 'cesiumContainer');
+        
+        // 如果需要自定义，请用以下方法
+        var bmgmc = new BaseMapGroupManagerClass(document.body, 'cesiumContainer');
+        bmgmc
+        // .addXYZ(BaseMapGroupManagerClass.tarLayer.base, "Bing Maps Aerial", undefined)
+        // .addBingAsDefault() // 与上一句同一个道理
+        .noBing()
+        .addXYZ(
+            BaseMapGroupManagerClass.tarLayer.base,
+            'Google',
+            'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga'
+        ).apply("Google");
+    </script>
+</body>
+```
+
+### 四、 📄 Navication.js
+
+添加指南针和比例尺
+
+### 五、 📄 setBaseView.js
+
+这个脚本可以理解为提供了一些可有可无的基础操作，唯一有用的就是对外暴露一个 ```ImageLegend``` 对象
+
+![](./images/setBaseMapComm.jpg)
+
+- ImageLegend 对象介绍
+
+| 内容 | 说明 |
+| -------- | -------- |
+| updateOption(object) | 更新图片显示参数 |
+| bottom | 提供图片显示参数中的 bottom |
+| bottom.none | 没有时间轴时理想高度 |
+| bottom.timeline | 只有时间轴时理想高度 |
+| bottom.zoom | 有比例尺时理想高度 |
+| option | 图片显示参数 |
+| option.imageMaxWidth | 图片的最大宽度 |
+| option.imageMaxHeight | 图片的最大高度 |
+| option.bottom | 图片距离底部高度 |
+| init(url) | 初始化和指定显示的图示 url |
+
+```javascript
+// updateOption 可以在任何时候调用
+// init 随时可以调用来修改图片
+ImageLegend.updateOption(ImageLegend.bottom.zoom)
+.init("http://localhost:3000/images/a.jpg")
+.updateOption({
+    imageMaxWidth: "130px",
+    imageMaxHeight: 0,
+    bottom: 0
+});
+```
+
+### 六、 📄 TimeLine.js
+
+这个是时间线的修改，因为我的项目需要，我的需求是显示一年的数据，而一年每 8 天只有一期数据，并且通过 layers 参数来索引影像；这里有一个 bug 就是，时间条上的日期偶尔是中文偶尔是英文，不知道为什么
+
+![](./images/ll_clock_timeline.jpg)
+
+⚠ 注意代码中的最后一个参数中，return {layers,query_layers} 
+
+```javascript
+// m 年的第 n 期
+// service: WMS
+// layers: vhi_{m}_{n}
+// styles: draught:vhi
+// transparent: true
+// format: image/png
+// 使用方法如下
+// 从 2018-01-01 到 2018-12-31
+// 每 8 天一期
+new TimeLine(viewer, '2018-01-01', '2018-12-31',
+    'http://10.10.1.132:8080/geoserver/draught/wms', {
+        styles: 'draught:vhi',
+        service: 'WMS',
+        transparent: true,
+        format: 'image/png'
+    },
+    function ({
+        year,
+        month,
+        day,
+        dd // 对应闰年是 (1~366) 平年是 (1~365)
+    }) {
+        // 每 8 天一期，这里将天数对 8 求商取整
+        // 如果有需要这里可以附加其他参数去覆盖例如 { layers,styles }
+        return {
+            // 因为这个 imageProvider 无法将 query_layers 进行设置，所以最好在这里设置好
+            // query_layers: `vhi_${year}_${parseInt(dd / 8) + 1}`,
+            layers: `vhi_${year}_${parseInt(dd / 8) + 1}`
+        };
+    }).init()
+    .UTC(); // <- 这个是将日期变成中文，不需要可以不要
+```
+
+
+
+## 第二部分: example 文件夹下的例子
 
 [BaseMap](./example/BaseMap.html)
 

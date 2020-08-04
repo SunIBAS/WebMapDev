@@ -147,6 +147,27 @@ const installMarkerAndGraphicManager = function (srcPath) {
             pickFeature = new PickFeature(viewer);
             // 定义点击事件接口，虽然在 markerManager.js 中定义了一部分
             if (!window.handler) {
+                // 坐标投影
+                let transformLocation = (function (viewer) {
+                    var ellipsoid=viewer.scene.globe.ellipsoid;
+                    return {
+                        c3LatLng(cartesian3) {
+                            var cartographic=ellipsoid.cartesianToCartographic(cartesian3);
+                            var lat=Cesium.Math.toDegrees(cartographic.latitude);
+                            var lng=Cesium.Math.toDegrees(cartographic.longitude);
+                            var alt=cartographic.height;
+                            console.log(`lat=${lat},lng=${lng},alt=${alt}`);
+                            return {
+                                lat,
+                                lng,
+                                alt,
+                                // todo 暂时随便写的
+                                x: lat,
+                                y: lng
+                            }
+                        }
+                    }
+                })(viewer);
                 window.handler = (function () {
                     let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
                     let lclick = () => {};

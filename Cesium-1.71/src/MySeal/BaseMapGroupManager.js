@@ -290,6 +290,10 @@ const BaseMapGroupManagerClass = (function() {
     }
 })();
 
+/**
+ * @param parentDom 挂地图的节点，必须事先设置好大小位置
+ * @param id        地图的id，如果没有将随机定义一个
+ * */
 function MyDefault_BaseMapGroupManager_Setting(parentDom, id) {
     // 从 leaflet 项目复制过来的，懒得修改了
     const overlap = {
