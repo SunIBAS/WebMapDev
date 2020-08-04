@@ -133,32 +133,7 @@ function setBaseView(viewer,optioins) {
             }
         }
     })(viewer);
-    // 点击事件 todo 这里在 setBaseView 中也定义了，但是懒得改了，后面引用注意即可
-    if (!window.handler) {
-        window.handler = (function () {
-            let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-            let lclick = () => {};
-            handler.setInputAction(function(click){
-                let map = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
-                lclick({
-                    src: click.position,
-                    // dom 节点上的位置
-                    view: viewer.scene.pick(click.position),
-                    word: viewer.scene.camera.pickEllipsoid(click.position, viewer.scene.globe.ellipsoid),
-                    platform: viewer.scene.pickPosition(click.position),
-                    // 可以绘制到地图的对应位置
-                    map: map,
-                    // wgs84 的坐标，可以和后台交互
-                    wgs84: transformLocation.c3LatLng(map)
-                });
-            },Cesium.ScreenSpaceEventType.LEFT_CLICK);
-            return {
-                lclick(cb) {
-                    lclick = cb;
-                }
-            }
-        })();
-    }
+
     // handler.lclick(p => {
     //     window.p = p;
     //     var pinBuilder = new Cesium.PinBuilder();
