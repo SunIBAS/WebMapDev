@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>Hello World!</title>
+    <script src="../src/CesiumUnminified/Cesium.js"></script>
+    <style>
+        @import url(../src/MySeal/bucket.css);
+    </style>
+</head>
+<body>
+<div id="cesiumContainer" class="fullSize"></div>
+<script src="../src/MySeal/Basemap.js"></script>
+<script src="../src/MySeal/setBaseView.js"></script>
+
+<script src="../src/MySeal/MarkerAndGraphicManager/index.js"></script>
+<!--<script src="../src/MySeal/ManagerGeoJson.js"></script>-->
+<script>
+    let viewer = setBaseView("cesiumContainer",{
+    });
+
+    window.mgm = installMarkerAndGraphicManager().init(function () {
+        let provider = new Cesium.WebMapServiceImageryProvider({
+            enablePickFeatures: true,
+            url: 'http://10.10.1.132:8080/geoserver/draught/wms',
+            layers: 'draught:vhi_2019_1',
+            parameters: {
+                styles: 'draught:vhi',
+                service: 'WMS',
+                transparent: true,
+                format: 'image/png'
+            }
+        });
+        viewer.imageryLayers.addImageryProvider(provider);
+        // window.prov = provider;
+        mgm.initPickFeature(provider,"draught");
+    },viewer);
+    window.manager = window.mgm.getManager();
+</script>
+</body>
+</html>

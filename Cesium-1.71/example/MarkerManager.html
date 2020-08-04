@@ -23,7 +23,7 @@
 
 <script src="../src/MySeal/BaseMapGroupManager.js"></script>
 <script src="../src/MySeal/MarkerAndGraphicManager/index.js"></script>
-<script src="../src/MySeal/ManagerGeoJson.js"></script>
+<!--<script src="../src/MySeal/ManagerGeoJson.js"></script>-->
 <script>
     let bmgmc = new MyDefault_BaseMapGroupManager_Setting(document.body, 'cesiumContainer');
     let viewer = setBaseView(bmgmc.viewer,{
@@ -96,9 +96,6 @@
             })
         });
     }
-
-    // let mgj = new ManagerGeoJson(viewer);
-    // mgj.addGeoJson("haha",'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson');
 </script>
 </body>
 </html>

@@ -130,7 +130,7 @@ new BaseMapGroupManagerClass(parentDom, id)
 
 >> 这个只是简单的对地图做简单的设置
 
-> TimeLine.js
+> ### TimeLine.js
 
 >> 这个是时间线的修改，因为我的项目需要
 
@@ -166,6 +166,8 @@ new TimeLine(viewer, '2018-01-01', '2018-12-31',
         // 每 8 天一期，这里将天数对 8 求商取整
         // 如果有需要这里可以附加其他参数去覆盖例如 { layers,styles }
         return {
+            // 因为这个 imageProvider 无法将 query_layers 进行设置，所以最好在这里设置好
+            // query_layers: `vhi_${year}_${parseInt(dd / 8) + 1}`,
             layers: `vhi_${year}_${parseInt(dd / 8) + 1}`
         };
     }).init()
@@ -324,11 +326,27 @@ var viewer = new Cesium.Viewer("cesiumContainer",{
 
 ![](./images/TimeLine.jpg)
 
+### 测试点击获取栅格信息
+
+普通的 wms 点击事件 [ClickAndMark](./example/ClickAndMark.html)
+
+![](./images/ClickAndMark.jpg)
+
+结合时间轴的 wms 点击事件 [TimeLineWithClickPop](./example/TimeLineWithClickPop.html)
+
+![](./images/TimeLineWithClickPop.jpg)
+
 ### 标记、折线、多边形
 
 [MarkPolylinePolygon](./example/MarkerManager.html)
 
 ![](./images/MarkPolylinePolygon.jpg)
+
+### 导航和比例尺
+
+[navigation](./example/navigation.html)
+
+![](./images/navication.jpg)
 
 ### 疑难问题的解
 

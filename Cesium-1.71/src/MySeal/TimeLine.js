@@ -96,6 +96,7 @@ class TimeLine {
         return this;
     }
 
+    // 修改完参数后必调的函数
     init() {
         let $this = this;
         this.times = Cesium.TimeIntervalCollection.fromIso8601({
@@ -111,6 +112,10 @@ class TimeLine {
             parameters: this.parameters,
             clock: this.viewer.clock,
             times: this.times,
+            // getFeatureInfoParameters: {
+            //     query_layers: "vhi_2018_1",
+            //     haha: "ibas",
+            // }
         });
 
         this.imageryLayers = this.viewer.imageryLayers;

@@ -53,7 +53,10 @@
     padding: 0 12px; }
 .marker-popWin-class span {
     margin-top: 12px;
-    display: block; }
+    color: white;
+    display: block;
+    font-weight: bold;
+}
 .marker-popWin-class .arrow {
     position: absolute;
     top: 73px;
