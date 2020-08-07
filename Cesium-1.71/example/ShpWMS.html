@@ -25,15 +25,15 @@
 <!--<script src="../src/MySeal/ManagerGeoJson.js"></script>-->
 <script>
     let viewer = setBaseView("cesiumContainer",{
-    });
+    },  new Cesium.Cartesian3(2367015.218173529, 4216885.911643102, 4275741.584827358));
 
     window.mgm = installMarkerAndGraphicManager().init(function () {
         let provider = new Cesium.WebMapServiceImageryProvider({
             enablePickFeatures: true,
-            url: 'http://10.10.1.132:8080/geoserver/draught/wms',
-            layers: 'draught:vhi_2019_1',
+            url: 'http://10.10.1.132:8080/geoserver/planting_structure/wms',
+            layers: 'planting_structure:urganch2019',
             parameters: {
-                styles: 'draught:vhi',
+                styles: 'planting_structure:planting_structure',
                 service: 'WMS',
                 transparent: true,
                 format: 'image/png'
@@ -41,7 +41,7 @@
         });
         viewer.imageryLayers.addImageryProvider(provider);
         // window.prov = provider;
-        mgm.initRasterPickFeature(provider,"draught");
+        mgm.initVectorPickFeature(provider);
     },viewer);
     window.manager = window.mgm.getManager();
 </script>

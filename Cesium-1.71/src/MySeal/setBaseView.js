@@ -1,4 +1,4 @@
-function setBaseView(viewer,optioins) {
+function setBaseView(viewer,optioins,center) {
     // 将底图设置为空，避免地图初始化时去获取token，获取token需要等待而且失败概率很大
     if (typeof viewer == "string") {
         window.viewer = viewer = new Cesium.Viewer(viewer, Object.assign({
@@ -18,9 +18,18 @@ function setBaseView(viewer,optioins) {
     }
 
     // 设置地图初始化看到的位置和缩放等级
+    let destination = (function (center) {
+        if (center && center.lng && center.lat && center.height) {
+            return Cesium.Cartesian3.fromDegrees(center.lng,center.lat,center.height);
+        } if (center instanceof Cesium.Cartesian3) {
+            return center;
+        } else {
+            return Cesium.Cartesian3.fromDegrees(65, 45, 4000000);
+        }
+    })(center);
     viewer.scene.camera.setView({
         // 初始化相机经纬度
-        destination: Cesium.Cartesian3.fromDegrees(65, 45, 4000000),
+        destination: destination,//Cesium.Cartesian3.fromDegrees(65, 45, 4000000),
         orientation: {
             heading: 6.2831853071795845,
             pitch: -1.57072018602691, //从上往下看为-90

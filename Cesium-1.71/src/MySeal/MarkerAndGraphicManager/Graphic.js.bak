@@ -463,22 +463,15 @@ class CesiumPolyline extends BaseGraphic {
         const _update = function () {
             return self.positions;
         };
-        if (options instanceof Cesium.Entity) {
-            this.options = options;
-            this.options.gvid = this._gvid;
-            this.options.gvtype = this._gvtype;
-            this.options.gvname = this._name;
-        } else {
-            this.options = {
-                gvname: this._name,
-                gvid: this._gvid,
-                gvtype: this._gvtype,
-                polyline: options,
-                properties: options.properties
-            };
-            delete options.properties
-            this.options.polyline.positions = new Cesium.CallbackProperty(_update, false);
-        }
+        this.options = {
+            gvname: this._name,
+            gvid: this._gvid,
+            gvtype: this._gvtype,
+            polyline: options,
+            properties: options.properties
+        };
+        delete options.properties
+        this.options.polyline.positions = new Cesium.CallbackProperty(_update, false);
         this.graphic = undefined;
         this.nodeGraphic = undefined;
         this.node = false;
@@ -657,6 +650,7 @@ class CesiumPolyline extends BaseGraphic {
         this.nodeGraphic = undefined;
     }
 }
+// todo 下面关于 holes 是我加上去的
 // https://cesium.com/docs/cesiumjs-ref-doc/PolygonGraphics.html?classFilter=polygongra
 class CesiumPolygon extends BaseGraphic {
     /**
@@ -670,26 +664,21 @@ class CesiumPolygon extends BaseGraphic {
         this._type = 'POLYGON';
         this.gvtype = GraphicType.POLYGON;
         this.positions = options.positions || [];
+        this.holes = options.holes || [];
         this.nodePositions = [...this.positions]
 
         const self = this;
-        if (options instanceof Cesium.Entity) {
-            this.options = options;
-            options.gvid = this.gvid;
-            options.gvtype = this.gvtype;
-        } else {
-            this.options = {
-                gvid: this.gvid,
-                gvtype: this.gvtype,
-                polygon: {
-                    hierarchy: new Cesium.CallbackProperty(function () {
-                        return new Cesium.PolygonHierarchy(self.positions)
-                    }, false),
-                    ...options
-                },
-                properties: options.properties
-            };
-        }
+        this.options = {
+            gvid: this.gvid,
+            gvtype: this.gvtype,
+            polygon: {
+                hierarchy: new Cesium.CallbackProperty(function () {
+                    return new Cesium.PolygonHierarchy(self.positions,self.holes)
+                }, false),
+                ...options
+            },
+            properties: options.properties
+        };
         delete options.properties
         this.node = false;
         this.graphic = undefined;
@@ -936,12 +925,19 @@ class CesiumPolygon extends BaseGraphic {
         outlineColor: Cesium.Color.AQUA.withAlpha(0.4)
         //heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
     }
-    static fromDegrees(viewer, positions, properties = {}) {
+    // positions 和 holes 最底层的数据格式是一样的
+    static fromDegrees(viewer, positions, properties = {},holes) {
         positions = positions.map(_ => {
             return Cesium.Cartesian3.fromDegrees(_.lon, _.lat, _.height);
         });
         let options = CesiumPolygon.defaultStyle;
         options.positions = positions;
+        options.holes = [];
+        (holes || []).forEach(h => {
+            options.holes.push(new Cesium.PolygonHierarchy(h.map(_ => {
+                return Cesium.Cartesian3.fromDegrees(_.lon, _.lat, _.height);
+            })));
+        });
         if ("defaultStyle" in properties && "properties" in properties) {
             options = {
                 ...options,

@@ -3,7 +3,9 @@ class PickFeature {
         // 使用方法 PickFeature.defaultShowFn.draught.bind(null,addPopPanel)
         "draught"(addPopPanel,c2,data) {
             // 针对干旱指数
-            addPopPanel(c2,{info:data[0].data.properties.GRAY_INDEX})
+            addPopPanel(c2,{
+                info:data[0].data.properties.GRAY_INDEX
+            })
         }
     }
     constructor(viewer, showPop, provider) {

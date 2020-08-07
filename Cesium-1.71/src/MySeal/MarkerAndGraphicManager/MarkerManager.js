@@ -80,6 +80,11 @@ class MarkerManager {
             }
         });
         this.offset = false;
+        this.selfPops = [/*{
+            position: c3,
+            div: div,
+            id: "",
+        }*/];
     }
 
     // todo auth:IBAS 这个方法是为了可以联合作者其他代码实现特殊功能
@@ -107,24 +112,13 @@ class MarkerManager {
                 if (!ele) {
                     return;
                 }
-                if (self.offset) {
-                    ele.style.left = pos.x - 100 - 5 + "px";
-                    ele.style.top = pos.y - 110 + "px";
-                } else {
-                    ele.style.left = pos.x - 100 + "px";
-                    ele.style.top = pos.y - 83 + "px";
-                }
-
-                const curPos = self.popWinPosition;
-                //标记转到地球背面隐藏气泡 todo utils
-                if (pointVisibilityOnEarth(curPos, self._viewer)) {
-                    ele.style.display = "block";
-                } else {
-                    ele.style.display = "none";
-                }
+                self._reCalcDivPosition(ele,self.popWinPosition,-5,0);
 
                 // ele.style.display = "block";
             }
+            self.selfPops.forEach(pop => {
+                self._reCalcDivPosition(pop.ele,pop.position,-5,0);
+            });
         });
         const showTip = function (e) {
             const obj = viewer.scene.pick(e.position);
@@ -147,6 +141,24 @@ class MarkerManager {
         };
 
         handler.setInputAction(showTip, LEFT_CLICK);
+    }
+    // 在更新相机位置时提供重新计算的方法
+    _reCalcDivPosition(ele,position,xOffset,yOffset) {
+        const pos = CVT.cartesian2Pixel(position, viewer);
+
+        let h = parseInt(ele.style.height);
+        ele.getElementsByClassName('arrow')[0].style.top = h + "px";
+        h += 11;
+        ele.style.left = pos.x - 100 + (xOffset || 0) + "px";
+        ele.style.top = pos.y - h + (yOffset || 0) + "px";
+
+        const curPos = position;
+        //标记转到地球背面隐藏气泡 todo utils
+        if (pointVisibilityOnEarth(curPos, this._viewer)) {
+            ele.style.display = "block";
+        } else {
+            ele.style.display = "none";
+        }
     }
     /**
      * 开始拾取marker，调用该方法后开始监听鼠标单击，添加标记
@@ -422,41 +434,15 @@ class MarkerManager {
             this.destroyPopPanle();
         }
         this.offset = false;
-        const popdiv = document.createElement("div");
-        popdiv.id = "popContainer";
-        popdiv.className = "marker-popWin-class";
         this.popWinPosition = c3;
         const coord = CVT.cartesian2Degrees(c3, this._viewer);
-        popdiv.style.display = "none";
+        let popdiv = this._createPopDom(coord,infos);
 
-        const arrow = document.createElement("div");
-        arrow.className = "arrow";
-        const closebtn = document.createElement("span");
-        closebtn.className = "iconfont iconclose closebtn";
-        const self = this;
-        closebtn.onclick = function () {
-            $(self.popDiv).remove()
-            self.popDiv = undefined;
-        };
-        popdiv.appendChild(closebtn);
-        // popdiv.appendChild(txtdiv);
-        for (let i in infos) {
-            let remarkdiv = document.createElement('span');
-            remarkdiv.title = infos[i];
-            remarkdiv.innerText = setString(i + ":" + infos[i], 17);
-            popdiv.appendChild(remarkdiv)
-            break;
-        }
-        const coordsdiv = document.createElement("span");
-        coordsdiv.innerText =
-            "经度:" + coord.lon.toFixed(2) + "  纬度:" + coord.lat.toFixed(2);
-        popdiv.appendChild(coordsdiv);
-
-        popdiv.appendChild(arrow);
         this.popDiv = popdiv;
         this._viewer.container.appendChild(this.popDiv);
     }
     createPopPanel() {
+        //
         if (!defined(this.selectedMarker)) {
             return;
         }
@@ -464,41 +450,100 @@ class MarkerManager {
             this.destroyPopPanle();
         }
         this.offset = true;
-        const popdiv = document.createElement("div");
-        popdiv.id = "popContainer";
-        popdiv.className = "marker-popWin-class";
         const position = this.selectedMarker.position;
         this.popWinPosition = position;
         const coord = CVT.cartesian2Degrees(position, this._viewer);
-        popdiv.style.display = "none";
-        // const txtdiv = document.createElement("span");
-        // txtdiv.innerText = "名称:" + (this.selectedMarker.name || "未命名");
-        let remarkdiv
-        remarkdiv = document.createElement('span')
-        remarkdiv.title = this.selectedMarker.description
-        remarkdiv.innerText = "描述:" +
-            setString(this.selectedMarker.description || '暂无', 14)
-        const coordsdiv = document.createElement("span");
-        coordsdiv.innerText =
-            "经度:" + coord.lon.toFixed(2) + "  纬度:" + coord.lat.toFixed(2);
-        const arrow = document.createElement("div");
-        arrow.className = "arrow";
-        const closebtn = document.createElement("span");
-        closebtn.className = "iconfont iconclose closebtn";
-        const self = this;
-        closebtn.onclick = function () {
-            $(self.popDiv).remove()
-            self.popDiv = undefined;
-        };
-        popdiv.appendChild(closebtn);
-        // popdiv.appendChild(txtdiv);
-        if (remarkdiv) {
-            popdiv.appendChild(remarkdiv)
-        }
-        popdiv.appendChild(coordsdiv);
-        popdiv.appendChild(arrow);
+        let popdiv = this._createPopDom(coord,{描述: this.selectedMarker.description || "暂无"});
+
         this.popDiv = popdiv;
         this._viewer.container.appendChild(this.popDiv);
+    }
+    // selfControl 默认为 false 表示组件内使用，否则是一个 函数用来作为删除回调
+    // 区别就是关闭按钮
+    _createPopDom(coord,infos,selfControl,selfId) {
+        let height = 28 + 12;
+        const popdiv = document.createElement("div");
+        // popdiv
+        {
+            popdiv.id = selfId || "popContainer";
+            popdiv.className = "marker-popWin-class";
+            popdiv.style.display = "none";
+        }
+        // 关闭按钮
+        {
+            const closebtn = document.createElement("span");
+            closebtn.className = "iconfont iconclose closebtn";
+            closebtn.innerText = "x"
+            closebtn.style.width = "11px";
+            closebtn.style.height = "12px";
+            closebtn.style.background = "black";
+            closebtn.style.color = "white";
+            closebtn.style.margin = "10px 0";
+            closebtn.style.lineHeight = "10px";
+            closebtn.onclick = (function (self) {
+                $(self.popDiv).remove()
+                self.popDiv = undefined;
+                selfControl();
+            }).bind(null,selfControl ? {popDiv:popdiv}:this);
+            popdiv.appendChild(closebtn);
+        }
+        // 信息
+        {
+            for (let i in infos) {
+                let remarkdiv = document.createElement('span');
+                if (typeof infos[i] === "undefined") {
+                    infos[i] = '暂无';
+                } else {
+                    infos[i] += "";
+                }
+                remarkdiv.title = infos[i]
+                remarkdiv.innerText = i + ":" +
+                    setString(infos[i], 14);
+                popdiv.appendChild(remarkdiv);
+                height += 28;
+            }
+        }
+        // 经纬度
+        {
+            let coordsdiv = document.createElement("span");
+            coordsdiv.innerText =
+                "经度:" + coord.lon.toFixed(2) + "  纬度:" + coord.lat.toFixed(2);
+            popdiv.appendChild(coordsdiv);
+        }
+        // 底下箭头
+        {
+            const arrow = document.createElement("div");
+            arrow.className = "arrow";
+            popdiv.appendChild(arrow);
+        }
+        popdiv.style.height = height + "px";
+        return popdiv;
+    }
+    createSelfControlPopDom(c3,infos){
+        const coord = CVT.cartesian2Degrees(c3, this._viewer);
+        let id = this.generateId("self")
+        let div = this._createPopDom(coord,infos,(function (id) {
+            let index = -1;
+            this.selfPops.forEach((t,ind) => {
+                if (t.id === id) index = ind;
+            });
+            if (index !== -1) {
+                this.selfPops.splice(index,1);
+            }
+        }).bind(this,id),id);
+        // div.setAttribute("tid",id);
+        this._viewer.container.appendChild(div);
+        this.selfPops.push({
+            position: c3,
+            ele: div,
+            id: id
+        })
+    }
+    clearAllSelfPopDom() {
+        this.selfPops.forEach(_ => {
+            _.ele.remove();
+        });
+        this.selfPops = [];
     }
 
     import(feat) {

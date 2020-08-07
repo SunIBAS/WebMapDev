@@ -96,8 +96,8 @@ let MarkerControlPanel = class {
                             <li tar="line"><i title="添加线段" class="iconfont iconpolyline icon-class"></i><span class="">折线</span></li>
                             <li tar="polygon"><i title="添加多边形" class="iconfont iconpolygon icon-class"></i><span class="">多边形</span></li>
                             <!--<li tar="layerManager"><i title="图层管理" class="iconfont iconlayer icon-class"></i><span class="">图层管理</span></li>-->
-                            <li tar="import"><i title="导入" class="iconfont iconimport action-icon-class"></i><span class="">导入</span></li>
-                            <li tar="export"><i title="导出" class="iconfont iconexport action-icon-class"></i><span class="">导出</span></li>
+                            <!--<li tar="import"><i title="导入" class="iconfont iconimport action-icon-class"></i><span class="">导入</span></li>-->
+                            <!--<li tar="export"><i title="导出" class="iconfont iconexport action-icon-class"></i><span class="">导出</span></li>-->
                         </ul>
                     </main>
                     <div tar="addMarkerInfo" style="position: fixed;left: 0;right: 0;bottom: 0;top: 0;background: rgba(23, 30, 38,0.5);display: none;">
@@ -177,60 +177,64 @@ let MarkerControlPanel = class {
         this.dom.lineLi.onclick = function () {
             $this.GraphicManager.createPolyline();
         }
-        this.dom.exportLi.onclick = function () {
-            let exp = {
-                marker: $this.MarkManager.export("MARKER",true,false),
-                polygon: $this.GraphicManager.export("POLYGON",false),
-                polyline: $this.GraphicManager.export("POLYLINE",false),
-            }
-            const blob = new Blob([JSON.stringify(exp)], { type: "" });
-            saveAs(blob, parseInt(Cesium.getTimestamp()) + '.json');
-        }
-        this.dom.importLi.onclick = function () {
-            let inp = document.createElement("input");
-            inp.type = "file";
-            inp.style.display = "none";
-            inp.onchange = function (evt) {
-                const files = evt.target.files,
-                    ext = files[0].name.split(".")[1];
-                if (files.length > 0) {
-                    const reader = new FileReader();
-                    if (ext.toLowerCase() === "json") {
-                        reader.readAsText(files[0]);
-                        reader.onload = function() {
-                            // _this[_this.upload2].import(JSON.parse(this.result));
-                            if (!this.result) {
-                                return;
-                            }
-                            try {
-                                const jsonFileContent = JSON.parse(this.result);
-                                if ("marker" in jsonFileContent && jsonFileContent["marker"].features.length) {
-                                    jsonFileContent["marker"].features.forEach(f => {
-                                        $this.MarkManager.import(f);
-                                    });
-                                }
-                                if ("polygon" in jsonFileContent && jsonFileContent["polygon"].features.length) {
-                                    jsonFileContent["polygon"].features.forEach(f => {
-                                        $this.GraphicManager.import(f);
-                                    });
-                                }
-                                if ("polyline" in jsonFileContent && jsonFileContent["polyline"].features.length) {
-                                    jsonFileContent["polyline"].features.forEach(f => {
-                                        $this.GraphicManager.import(f);
-                                    });
-                                }
-
-                            } catch (e) {
-                                console.log(e);
-                            }
-                            // document.getElementById("graphicuploadhandler").value = "";
-                        };
-                    }
+        if (this.dom.exportLi) {
+            this.dom.exportLi.onclick = function () {
+                let exp = {
+                    marker: $this.MarkManager.export("MARKER",true,false),
+                    polygon: $this.GraphicManager.export("POLYGON",false),
+                    polyline: $this.GraphicManager.export("POLYLINE",false),
                 }
-                inp.remove();
+                const blob = new Blob([JSON.stringify(exp)], { type: "" });
+                saveAs(blob, parseInt(Cesium.getTimestamp()) + '.json');
             }
-            document.body.appendChild(inp);
-            inp.click();
+        }
+        if (this.dom.importLi) {
+            this.dom.importLi.onclick = function () {
+                let inp = document.createElement("input");
+                inp.type = "file";
+                inp.style.display = "none";
+                inp.onchange = function (evt) {
+                    const files = evt.target.files,
+                        ext = files[0].name.split(".")[1];
+                    if (files.length > 0) {
+                        const reader = new FileReader();
+                        if (ext.toLowerCase() === "json") {
+                            reader.readAsText(files[0]);
+                            reader.onload = function() {
+                                // _this[_this.upload2].import(JSON.parse(this.result));
+                                if (!this.result) {
+                                    return;
+                                }
+                                try {
+                                    const jsonFileContent = JSON.parse(this.result);
+                                    if ("marker" in jsonFileContent && jsonFileContent["marker"].features.length) {
+                                        jsonFileContent["marker"].features.forEach(f => {
+                                            $this.MarkManager.import(f);
+                                        });
+                                    }
+                                    if ("polygon" in jsonFileContent && jsonFileContent["polygon"].features.length) {
+                                        jsonFileContent["polygon"].features.forEach(f => {
+                                            $this.GraphicManager.import(f);
+                                        });
+                                    }
+                                    if ("polyline" in jsonFileContent && jsonFileContent["polyline"].features.length) {
+                                        jsonFileContent["polyline"].features.forEach(f => {
+                                            $this.GraphicManager.import(f);
+                                        });
+                                    }
+
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                                // document.getElementById("graphicuploadhandler").value = "";
+                            };
+                        }
+                    }
+                    inp.remove();
+                }
+                document.body.appendChild(inp);
+                inp.click();
+            }
         }
         this.dom.cancelBtn.onclick = function () {
             $this.MarkManager.cancelMark();

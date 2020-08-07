@@ -65,13 +65,15 @@ const installMarkerAndGraphicManager = function (srcPath) {
     const injFiles = [
         "style.css","jquery.min.js","FileSaver.min.js",
         "utils.js","GraphicType.js","PickFeature.js",
-        "Graphic.js","GraphicManager.js",
+        "Graphic.js","GraphicManager.js","AddFeatureOrOWS.js",
         "MarkerManager.js","MarkerControlPanel.js"];
     const MarkerAndGraphicManager = {
         MarkManager: null,
         GraphicManager: null,
+        addFeatureOrOWS: null,
     };
     let pickFeature;
+    let addFeatureOrOWS = null;
     // 颜色参考 https://cesium.com/docs/cesiumjs-ref-doc/Color.html?classFilter=color
     // color 表示闪烁时的颜色
     // times 表示闪烁次数
@@ -87,11 +89,11 @@ const installMarkerAndGraphicManager = function (srcPath) {
             times = times * 2 + 1;
             obj.id._flash = true;
             color = color || flash.defaultColor;
-            let tmpColor = [obj.id.polygon.material.color._value,color];
+            let tmpColor = [obj.id.polygon.material,color];
             obj.id.polygon.material = tmpColor[1];
             let id = setInterval(() => {
                 times--;
-                obj.id.polygon.material.color = tmpColor[times % 2];
+                obj.id.polygon.material = tmpColor[times % 2];
                 if (!times) {
                     obj.id._flash = false;
                     clearInterval(id);
@@ -127,14 +129,12 @@ const installMarkerAndGraphicManager = function (srcPath) {
             MarkerAndGraphicManager.GraphicManager = new GraphicManager(viewer);
             MarkerAndGraphicManager.MarkManager.addDearObjMethod("POLYGON",function ($markerManager,obj) {
                 window._click_polygon = obj;
-                MarkerAndGraphicManager.GraphicManager.get(obj.id.gvid);
                 if (obj.id.properties && obj.id.properties.__flash_ && obj.id.properties.__flash_._value === 1) {
                     flash.polyline(obj,3,obj.id.properties.__flash_color_._value);
                 }
             });
             MarkerAndGraphicManager.MarkManager.addDearObjMethod("POLYLINE",function ($markerManager,obj) {
                 window._click_polyline = obj;
-                MarkerAndGraphicManager.GraphicManager.get(obj.id.gvid);
                 if (obj.id.properties && obj.id.properties.__flash_ && obj.id.properties.__flash_._value === 1) {
                     flash.polyline(obj,3,obj.id.properties.__flash_color_._value);
                 }
@@ -193,16 +193,16 @@ const installMarkerAndGraphicManager = function (srcPath) {
                     }
                 })();
             }
+            addFeatureOrOWS = new AddFeatureOrOWS(viewer,MarkerAndGraphicManager.GraphicManager,MarkerAndGraphicManager.MarkManager,flash,{});
+            MarkerAndGraphicManager.addFeatureOrOWS = addFeatureOrOWS;
             cb();
         },injFiles.map(_ => srcPath + _));
     }
 
-
-
-
     let addPopPanel = function(p,infos) {
         MarkerAndGraphicManager.MarkManager.createCustomPopPanel(CVT.pixel2Cartesian(p,viewer),infos);
     }
+
     return {
         init(cb,viewer) {
             init(cb,viewer);
@@ -229,54 +229,34 @@ const installMarkerAndGraphicManager = function (srcPath) {
         // type 只能是 line 或 polygon
         // flash 为 true 或 false
         // 两个 color 是 Cesium.Color 对象
-        addOWS(url,type,flash,defaultColor,flashColor) {
-            type = type || "line";
-            // 默认为 true
-            flash = flash ? true : (typeof flash === "boolean" ? false : true);
-            flashColor = flashColor || "rgb(0, 191, 255)";
-            let tar = type === "line" ? "_polyline" : "_polygon";
-            let addFn = () => {};
-            let defaultStyle = {};
-            if (type === "geojson") {
-                addFn = MarkerAndGraphicManager.GraphicManager.addPolygon.bind(MarkerAndGraphicManager.GraphicManager);
-                defaultStyle = {};
-            } else if (type === "line") {
-                addFn = MarkerAndGraphicManager.GraphicManager.addPolyline.bind(MarkerAndGraphicManager.GraphicManager);
-                defaultStyle = {
-                    clampToGround: true,
-                    material: Cesium.Color.fromCssColorString(defaultColor),
-                    width: 3
-                };
-            }
-            Cesium.GeoJsonDataSource.load(url).then(function(dataSource) {
-                dataSource.entities.values.forEach(function (entity,id) {
-                    let ps = [];
-                    entity[tar].positions._value.forEach(p => ps.push(CVT.cartesian2Wgs84(p,viewer)));
-                    let pro = {};
-                    dataSource.entities.values[0]._properties.propertyNames.forEach(ns => {
-                        pro[ns] = dataSource.entities.values[0]._properties[ns]._value;
-                    });
-                    if (flash) {
-                        pro['_flash_'] = 1;
-                        pro['_flash_color_'] = Cesium.Color.fromCssColorString(flashColor);
-                    } else {
-                        pro['_flash_'] = 0;
-                    }
-                    pro = {
-                        properties: pro,
-                        defaultStyle
-                    };
-                    addFn(ps,
-                        "name" in pro ? pro.name : "name_" + id,
-                        pro)
-                });
-            });
-        },
-        initPickFeature(layerProvider,showFn) {
+        // addOWS(url,type,flash,defaultColor,flashColor) {
+        //     addFeatureOrOWS.addOWS(url,type,flash,defaultColor,flashColor);
+        // },
+        initRasterPickFeature(layerProvider,showFn) {
             if (typeof showFn === "string" && showFn in PickFeature.defaultShowPop) {
                 showFn = PickFeature.defaultShowPop[showFn].bind(null,addPopPanel);
             }
             pickFeature.showPop = showFn;
+            pickFeature.provider = layerProvider;
+            // pickFeature
+            handler.lclick(function (p) {
+                pickFeature.query(p.src);
+            });
+        },
+        initVectorPickFeature(layerProvider) {
+            if (typeof showFn === "string" && showFn in PickFeature.defaultShowPop) {
+                showFn = PickFeature.defaultShowPop[showFn].bind(null,addPopPanel);
+            }
+            pickFeature.showPop = function (c2,datas) {
+                addFeatureOrOWS.addPolygonShpGetInfo(datas[0].data,p => {
+                    for (let i in p) {
+                        if (/^[0-9]*[.]{0,1}[0-9]*$/.test(p[i] + '')) {
+                            p[i] = parseFloat(p[i]).toFixed(2);
+                        }
+                    }
+                    return p;
+                });
+            };
             pickFeature.provider = layerProvider;
             // pickFeature
             handler.lclick(function (p) {

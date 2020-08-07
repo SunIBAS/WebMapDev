@@ -355,6 +355,8 @@ var viewer = new Cesium.Viewer("cesiumContainer",{
 
 > [绘制多边形](https://github.com/Leaflet/Leaflet.draw)
 
+> [geojson](https://www.cnblogs.com/shoufengwei/p/8883013.html)
+
 ### 其他
 
 [入门文档](https://sogrey.top/Cesium-start/zh/guide/02-Viewer-some-helpful-widgets.html#%E6%9B%B4%E7%AE%80%E6%B4%81%E7%9A%84cesiumwidget)

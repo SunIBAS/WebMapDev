@@ -31,15 +31,18 @@
     });
 
     window.mgm = installMarkerAndGraphicManager().init(function () {
+        window.manager = window.mgm.getManager();
         console.log("loaded");
         showDatas();
-        mgm.addOWS(
+        manager.addFeatureOrOWS.addOWSPolyline(
             'http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson',
-            "line",
             true,
             "rgb(241,0,0)");
+        // manager.addFeatureOrOWS.addOWSPolygon(
+        //     'http://10.10.1.132:8080/geoserver/lake/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=lake%3Alake_2010&maxFeatures=50&outputFormat=application%2Fjson',
+        //     true);
+
     },viewer);
-    window.manager = window.mgm.getManager();
 
 
     function showDatas() {

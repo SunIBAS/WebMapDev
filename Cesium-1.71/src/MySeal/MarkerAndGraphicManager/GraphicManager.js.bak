@@ -560,11 +560,29 @@ const GraphicManager = (function () {
                 }
 
             } else if (feat.geometry.type.toUpperCase() === "POLYGON") {
-                coordinates = feat.geometry.coordinates[0]
-                for (let c of coordinates) {
-                    positions.push({ lon: c[0], lat: c[1], height: c[2] })
+                coordinates = feat.geometry.coordinates[0];
+                let holes = [];
+                // todo
+                if (coordinates[0][0] instanceof Array) {
+                    // 有洞
+                    for (let c of coordinates[0]) {
+                        positions.push({ lon: c[0], lat: c[1], height: c[2] })
+                    }
+                    coordinates.forEach((c,ind) => {
+                        if (ind) {
+                            let h = [];
+                            c.forEach(ci => {
+                                h.push({lon: ci[0],lat:ci[1],height:c[2]});
+                            });
+                            holes.push(h);
+                        }
+                    });
+                } else {
+                    for (let c of coordinates) {
+                        positions.push({ lon: c[0], lat: c[1], height: c[2] })
+                    }
                 }
-                graphic = CesiumPolygon.fromDegrees(this.viewer, positions, feat.properties);
+                graphic = CesiumPolygon.fromDegrees(this.viewer, positions, feat.properties,holes);
             } else {
                 throw new Error('不能识别的数据源.')
             }
@@ -582,35 +600,7 @@ const GraphicManager = (function () {
                 document.dispatchEvent(evt)
             }
             return graphic
-        }
 
-        importByEntity(ent,type) {
-            let id = this.generateId();
-            let graphic = null;
-            if (type === 'line') {
-                graphic = new CesiumPolyline(viewer,ent);
-            } else {
-                graphic = new CesiumPolygon(viewer,ent);
-            }
-            if (graphic) {
-                graphic.gvid = id;
-                graphic.gvname = `name_${id}`
-                this.manager.set(id, graphic)
-                const evt = new CustomEvent('addEvent', {
-                    detail: {
-                        gvid: graphic.gvid,
-                        gvtype: graphic.gvtype,
-                        gvname: graphic.gvname || '未命名',
-                    }
-                })
-                document.dispatchEvent(evt)
-            }
-        }
-        // type = line,polygon
-        importByEntities(entities,type) {
-            entities.forEach(ent => {
-                this.importByEntity(ent,type);
-            });
         }
 
         removeEventListener() {
@@ -663,11 +653,25 @@ const GraphicManager = (function () {
 
         // properties
         // [{lat,lng},{lat,lng},{lat,lng}]
+        // [
+        //      [{lat,lng},{lat,lng},{lat,lng}],
+        //      [{lat,lng},{lat,lng},{lat,lng}],
+        //      [{lat,lng},{lat,lng},{lat,lng}]
+        // ]
         addPolygon(latLngs,name,properties) {
             let json = JSON.parse(JSON.stringify(this.emptyPolygon));
-            json.geometry.coordinates[0] = latLngs.map(ll => {
-                return [ll.lng,ll.lat,0];
-            });
+            if (latLngs[0] instanceof Array) {
+                // 有洞
+                latLngs.forEach((lls,ind) => {
+                    json.geometry.coordinates[0].push(lls.map(ll => {
+                        return [ll.lng,ll.lat,0];
+                    }));
+                });
+            } else {
+                json.geometry.coordinates[0] = latLngs.map(ll => {
+                    return [ll.lng,ll.lat,0];
+                });
+            }
             json.properties.name = name;
             properties = properties || {};
             for (let i in properties) {
