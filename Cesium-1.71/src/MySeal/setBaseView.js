@@ -121,8 +121,8 @@ function setBaseView(viewer,optioins,center) {
             this.divDom.style.bottom = this.option.bottom ? this.option.bottom : "0";
             return this;
         }
-    }).init("http://10.10.1.132:8081/table/image/DRAUGHT_AVI.jpg");
-    ImageLegend.updateOption(ImageLegend.bottom.zoom);
+    }) //.init("http://10.10.1.132:8081/table/image/DRAUGHT_AVI.jpg");
+    //ImageLegend.updateOption(ImageLegend.bottom.zoom);
 
     // handler.lclick(p => {
     //     window.p = p;
