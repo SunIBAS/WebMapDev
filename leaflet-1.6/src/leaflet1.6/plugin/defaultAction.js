@@ -1,14 +1,15 @@
 // target 例如 marker、map、drawer
 // type 例如 click、move、hover
-window.$emit = function(msg,target,type,others) {
-    others = others || {};
-    window.parent.postMessage("_map_" + JSON.stringify({
-        data:msg,
-        target,
-        type,
-        ...others
-    }), '*');
-}
+// 下面代码转移到 src/plugin-js/index.js L97
+// window.$emit = function(msg,target,type,others) {
+//     others = others || {};
+//     window.parent.postMessage("_map_" + JSON.stringify({
+//         data:msg,
+//         target,
+//         type,
+//         ...others
+//     }), '*');
+// }
 //
 setTimeout(function () {
     document.head.innerHTML += `<style>

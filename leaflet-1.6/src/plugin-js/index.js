@@ -49,7 +49,7 @@ const insertJSandCSS = (ifr,cb,files) => {
     });
 }
 // 如果 id 是 window 表示不使用 iframe 而是使用当前页面
-const ifrInstance = function (id,action,{center,level} = {}) {
+const ifrInstance = function (id,action,{center,level}) {
     center = center || {lat: 45,lng:65};
     level = level || 5;
     let iframe = null;
@@ -59,13 +59,17 @@ const ifrInstance = function (id,action,{center,level} = {}) {
     let mapGroup = "mapGroupInstance";
     let showOneLayerInstance = "showOneLayerInstance";
     let getRasterInfo = "getRasterInfoInstance"
-    let addListener = function() {
+    let addListener = function(parent) {
         addListener = () => {};
-        window.addEventListener('message', function (event) {
-            if (typeof event.data === 'string' && event.data.startsWith("_map_")) {
-                action(JSON.parse(event.data.substring(5)));
-            }
-        });
+        if (parent) {
+            window.addEventListener('message', function (event) {
+                if (typeof event.data === 'string' && event.data.startsWith("_map_")) {
+                    action(JSON.parse(event.data.substring(5)));
+                }
+            });
+        } else {
+            // nothing
+        }
     }
     // todo 修改 action
     // eslint-disable-next-line no-console
@@ -92,6 +96,29 @@ const ifrInstance = function (id,action,{center,level} = {}) {
         initFrameBase(cb,otherFile) {
             if (iframe.contentWindow !== window) {
                 iframe.contentWindow.location.reload();
+                // target 例如 marker、map、drawer
+// type 例如 click、move、hover
+                window.$emit = function(msg,target,type,others) {
+                    others = others || {};
+                    window.postMessage("_map_" + JSON.stringify({
+                        data:msg,
+                        target,
+                        type,
+                        ...others
+                    }), '*');
+                }
+            } else {
+                // target 例如 marker、map、drawer
+// type 例如 click、move、hover
+                window.$emit = function(msg,target,type,others) {
+                    others = others || {};
+                    action({
+                        data:msg,
+                        target,
+                        type,
+                        ...others
+                    });
+                }
             }
             let files = ["/leaflet1.6/plugin/defaultAction.js",
                 "/leaflet1.6/leaflet.js","/leaflet1.6/plugin/ibasGroup/group.js",
@@ -107,7 +134,7 @@ const ifrInstance = function (id,action,{center,level} = {}) {
                 iframe.contentDocument.body.style.padding = "0";
                 iframe.contentDocument.body.style.border = "none";
             });
-            addListener();
+            addListener(iframe.contentWindow !== window);
         },
         // 向 body 插入 dom 元素
         insertDomToBody(domType,doFn) {
@@ -129,7 +156,6 @@ const ifrInstance = function (id,action,{center,level} = {}) {
                 dom.style.width = "100vw";
                 dom.style.height = "100vh";
             });
-            // todo 这里屏蔽了 双击 放大 地图 的操作
             this.eval(`window.${myMap} = L.map('${_mapId}',{doubleClickZoom: false}).setView([${center.lat},${center.lng}], ${level});
             window.${mapGroup} = manageMapGroupInstance(buildLayerControl(${myMap}));`);
             this.eval(`window.${showOneLayerInstance} = ShowOneLayer().init(window.${myMap})`);
