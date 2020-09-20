@@ -17,6 +17,8 @@ docker run -d -p 8088:8080 -v "C:\Users\HUZENGYUN\Documents\git\demo\result":/ho
 http://localhost:8088/geoserver
 ```
 
+[现有例子的展示](https://www.bilibili.com/video/BV1Hy4y1k75d/)
+
 [地图开发指南](./地图开发指南.md)
 
 [现有插件说明](./现有插件说明.md)

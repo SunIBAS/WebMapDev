@@ -180,6 +180,7 @@
         })
         // 这个东西需要在 L 之后 map 定义前就载入
         // 初始化 geoman                       // geoman.js
+        // 因为我不知都怎么弄 L.Draw 可以编辑自定义的 要素
         .add(function ($this,cb) {
             $this.obj.theGeomanInstance = geoman().init($this.obj.theIfrInstance,cb);
         })

@@ -35,6 +35,7 @@
     let mapClick = false;
     let getPointUrl = 'http://10.10.1.132:8080/geoserver/draught/wms';
     let mapOnclick = function() {};
+    // 初始化地图（这里指引入必要的脚本）
     let theIfrInstance = ifrInstance("map",function (action) {
         console.log(action);
         if (action.target === "map" && action.type === "click") {
@@ -48,12 +49,18 @@
             console.log(action);
         }
     },{center: {"lat":45.56816860237413,"lng":68.75244140625001},level: 5});
+
     theIfrInstance.initFrameBase(function () {
+        // 创建节点
         theIfrInstance.initMapDom("map");
         theIfrInstance.showLegend('http://10.10.1.132:8081/table/image/station_colorMap.png');
+        // 初始化插件 marker
         theMarkerInstance = marker().init(theIfrInstance,function () {
+            // 初始化插件 draw
             theDrawerInstance = draw().init(theIfrInstance,function () {
+                // 初始化插件 TimeSlider
                 TimeSliderInstance = TimeSlider().init(theIfrInstance,function () {
+                    // 插件全部初始化结束，开始做 自定义的事件
                     TimeSliderInstance.refreshTimeSlider('draught');
                     theDrawerInstance.initDraw();
                     console.log("ok");

@@ -61,6 +61,7 @@
             $this.obj.theIfrInstance.initFrameBase(cb);
         })
         // 等待 L 脚本完成加载                   // index.js
+        // 这里比 first.html 多了一个判断 L 是否初始化结束
         .add(function ($this,cb) {
             let id = setInterval(function () {
                 $this.obj.theIfrInstance.testRun("L",function () {
@@ -96,6 +97,7 @@
             cb();
         })
         // .setCallBack()
+        // 这里 .next() 之后才会开始执行，所以不能忘了
         .next();
     let pointId = 0;
     const addPoint = function () {
