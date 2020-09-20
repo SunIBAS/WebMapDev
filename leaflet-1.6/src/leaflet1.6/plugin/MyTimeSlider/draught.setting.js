@@ -9,6 +9,7 @@ const draughtSetting = {
         "transparent": "true",
         "VERSION": "1.1.1",
         "srs": "EPSG",
+        zIndex: 10,
     },
     formParamFunction: (time) => {
         let t = time.split('-');

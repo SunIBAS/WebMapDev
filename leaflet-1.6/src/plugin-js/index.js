@@ -49,7 +49,7 @@ const insertJSandCSS = (ifr,cb,files) => {
     });
 }
 // 如果 id 是 window 表示不使用 iframe 而是使用当前页面
-const ifrInstance = function (id,action,{center,level}) {
+const ifrInstance = function (id,action,{center,level} = {}) {
     center = center || {lat: 45,lng:65};
     level = level || 5;
     let iframe = null;

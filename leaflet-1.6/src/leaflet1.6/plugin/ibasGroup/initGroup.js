@@ -10,16 +10,16 @@ const baseMap = {
         type: 'layer',
         url: 'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga'
     },
-    "中亚无云遥感TM 30m": {
-        type: 'wms',
-        url: `${window.ips.api.geoserver}/geoserver/ditu/wms`,
-        params: {
-            "format": "image/png",
-            "VERSION": "1.1.1",
-            "layers": "ditu:google3857",
-            "transparent": true,
-        }
-    },
+    // "中亚无云遥感TM 30m": {
+    //     type: 'wms',
+    //     url: `${window.ips.api.geoserver}/geoserver/ditu/wms`,
+    //     params: {
+    //         "format": "image/png",
+    //         "VERSION": "1.1.1",
+    //         "layers": "ditu:google3857",
+    //         "transparent": true,
+    //     }
+    // },
     '无': {
         type: 'layer',
         url: ''
@@ -260,7 +260,7 @@ const buildLayerControl = (function(baseMap, overlap) {
         window.controls = controls;
         return controls;
     }
-})(baseMap, overlap);
+})(baseMap, {} /* overlap 之所以不用这个是，你们也没有我这个内网资源，就当作一个例子吧 */);
 
 // eslint-disable-next-line no-unused-vars
 const manageMapGroupInstance = function (mapGroup) {

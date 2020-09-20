@@ -63,7 +63,9 @@ L.Control.OrderLayersIBASGroup = L.Control.Layers.extend({
 
         let groundIndex = 0;
         let curIndex = this.overlayEleItems.fromIndex;
+        this.hasGroupOverlayers = false;
         for (var i in groupedOverlays) {
+            this.hasGroupOverlayers = true;
             this.overlayEleItems.groups[i] = {
                 children: 0,
                 index: groundIndex,
@@ -217,16 +219,18 @@ L.Control.OrderLayersIBASGroup = L.Control.Layers.extend({
             this._baseLayersList.style.display = baseLayersPresent ? '' : 'none';
         }
 
-        this._overlaysList.appendChild(BottomLayer);
-        for (let i in this.overlayEleItems.groups) {
-            this.overlayEleItems.groups[i].ele = null;
-        }
-        for(i = 0; i < overlaysLayers.length; i++) {
-            if(overlaysLayers[i]) {
-                this._addItem(overlaysLayers[i]);
+        if (this.hasGroupOverlayers) {
+            this._overlaysList.appendChild(BottomLayer);
+            for (let i in this.overlayEleItems.groups) {
+                this.overlayEleItems.groups[i].ele = null;
             }
+            for(i = 0; i < overlaysLayers.length; i++) {
+                if(overlaysLayers[i]) {
+                    this._addItem(overlaysLayers[i]);
+                }
+            }
+            this._overlaysList.appendChild(TopLayer);
         }
-        this._overlaysList.appendChild(TopLayer);
 
         this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
 
