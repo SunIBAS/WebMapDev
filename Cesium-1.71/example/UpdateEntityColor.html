@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>Hello World!</title>
+    <script src="../src/CesiumUnminified/Cesium.js"></script>
+    <style>
+        @import url(../src/MySeal/bucket.css);
+    </style>
+</head>
+<body>
+<div id="cesiumContainer" class="fullSize"></div>
+<script src="../src/MySeal/Basemap.js"></script>
+<script src="../src/MySeal/setBaseView.js"></script>
+<script>
+    const colors = [Cesium.Color.ALICEBLUE,Cesium.Color.ANTIQUEWHITE,Cesium.Color.AQUA,Cesium.Color.AQUAMARINE,Cesium.Color.AZURE,Cesium.Color.BEIGE,Cesium.Color.BISQUE,Cesium.Color.BLACK,Cesium.Color.BLANCHEDALMOND,Cesium.Color.BLUE,Cesium.Color.BLUEVIOLET,Cesium.Color.BROWN,Cesium.Color.BURLYWOOD,Cesium.Color.CADETBLUE,Cesium.Color.CHARTREUSE,Cesium.Color.CHOCOLATE,Cesium.Color.CORAL,Cesium.Color.CORNFLOWERBLUE,Cesium.Color.CORNSILK,Cesium.Color.CRIMSON,Cesium.Color.CYAN,Cesium.Color.DARKBLUE,Cesium.Color.DARKCYAN,Cesium.Color.DARKGOLDENROD,Cesium.Color.DARKGRAY,Cesium.Color.DARKGREEN,Cesium.Color.DARKGREY,Cesium.Color.DARKKHAKI,Cesium.Color.DARKMAGENTA,Cesium.Color.DARKOLIVEGREEN,Cesium.Color.DARKORANGE,Cesium.Color.DARKORCHID,Cesium.Color.DARKRED,Cesium.Color.DARKSALMON,Cesium.Color.DARKSEAGREEN,Cesium.Color.DARKSLATEBLUE,Cesium.Color.DARKSLATEGRAY,Cesium.Color.DARKSLATEGREY,Cesium.Color.DARKTURQUOISE,Cesium.Color.DARKVIOLET,Cesium.Color.DEEPPINK,Cesium.Color.DEEPSKYBLUE,Cesium.Color.DIMGRAY,Cesium.Color.DIMGREY,Cesium.Color.DODGERBLUE,Cesium.Color.FIREBRICK,Cesium.Color.FLORALWHITE,Cesium.Color.FORESTGREEN,Cesium.Color.FUCHSIA,Cesium.Color.GAINSBORO,Cesium.Color.GHOSTWHITE,Cesium.Color.GOLD,Cesium.Color.GOLDENROD,Cesium.Color.GRAY,Cesium.Color.GREEN,Cesium.Color.GREENYELLOW,Cesium.Color.GREY,Cesium.Color.HONEYDEW,Cesium.Color.HOTPINK,Cesium.Color.INDIANRED,Cesium.Color.INDIGO,Cesium.Color.IVORY,Cesium.Color.KHAKI,Cesium.Color.LAVENDAR_BLUSH,Cesium.Color.LAVENDER,Cesium.Color.LAWNGREEN,Cesium.Color.LEMONCHIFFON,Cesium.Color.LIGHTBLUE,Cesium.Color.LIGHTCORAL,Cesium.Color.LIGHTCYAN,Cesium.Color.LIGHTGOLDENRODYELLOW,Cesium.Color.LIGHTGRAY,Cesium.Color.LIGHTGREEN,Cesium.Color.LIGHTGREY,Cesium.Color.LIGHTPINK,Cesium.Color.LIGHTSEAGREEN,Cesium.Color.LIGHTSKYBLUE,Cesium.Color.LIGHTSLATEGRAY,Cesium.Color.LIGHTSLATEGREY,Cesium.Color.LIGHTSTEELBLUE,Cesium.Color.LIGHTYELLOW,Cesium.Color.LIME,Cesium.Color.LIMEGREEN,Cesium.Color.LINEN,Cesium.Color.MAGENTA,Cesium.Color.MAROON,Cesium.Color.MEDIUMAQUAMARINE,Cesium.Color.MEDIUMBLUE,Cesium.Color.MEDIUMORCHID,Cesium.Color.MEDIUMPURPLE,Cesium.Color.MEDIUMSEAGREEN,Cesium.Color.MEDIUMSLATEBLUE,Cesium.Color.MEDIUMSPRINGGREEN,Cesium.Color.MEDIUMTURQUOISE,Cesium.Color.MEDIUMVIOLETRED,Cesium.Color.MIDNIGHTBLUE,Cesium.Color.MINTCREAM,Cesium.Color.MISTYROSE,Cesium.Color.MOCCASIN,Cesium.Color.NAVAJOWHITE,Cesium.Color.NAVY,Cesium.Color.OLDLACE,Cesium.Color.OLIVE,Cesium.Color.OLIVEDRAB,Cesium.Color.ORANGE,Cesium.Color.ORANGERED,Cesium.Color.ORCHID,,Cesium.Color.PALEGOLDENROD,Cesium.Color.PALEGREEN,Cesium.Color.PALETURQUOISE,Cesium.Color.PALEVIOLETRED,Cesium.Color.PAPAYAWHIP,Cesium.Color.PEACHPUFF,Cesium.Color.PERU,Cesium.Color.PINK,Cesium.Color.PLUM,Cesium.Color.POWDERBLUE,Cesium.Color.PURPLE,Cesium.Color.RED,Cesium.Color.ROSYBROWN,Cesium.Color.ROYALBLUE,Cesium.Color.SADDLEBROWN,Cesium.Color.SALMON,Cesium.Color.SANDYBROWN,Cesium.Color.SEAGREEN,Cesium.Color.SEASHELL,Cesium.Color.SIENNA,Cesium.Color.SILVER,Cesium.Color.SKYBLUE,Cesium.Color.SLATEBLUE,Cesium.Color.SLATEGRAY,Cesium.Color.SLATEGREY,Cesium.Color.SNOW,Cesium.Color.SPRINGGREEN,Cesium.Color.STEELBLUE,Cesium.Color.TAN,Cesium.Color.TEAL,Cesium.Color.THISTLE,Cesium.Color.TOMATO,Cesium.Color.TRANSPARENT,Cesium.Color.TURQUOISE,Cesium.Color.VIOLET,Cesium.Color.WHEAT,Cesium.Color.WHITE,Cesium.Color.WHITESMOKE,Cesium.Color.YELLOW,Cesium.Color.YELLOWGREEN];
+    var viewer = new Cesium.Viewer("cesiumContainer",{
+        ...addBaseMap.output()
+    });
+    viewer = setBaseView(viewer);
+    var dataSource = new Cesium.GeoJsonDataSource();
+    dataSource.load('http://10.10.1.132:8080/geoserver/swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=swat%3Aamu_lower&maxFeatures=50&outputFormat=application%2Fjson').then(function(value) {
+        viewer.dataSources.add(dataSource);
+        if (window.colorId) clearInterval(window.colorId);
+        setTimeout(function() {
+            dataSource.entities.values.forEach(c => {
+                c.polyline._positions._value.forEach(p => {
+                    p.z = p.z + 2000; // 4418379.397399481
+                });
+            });
+        },1000);
+        window.colorId = setInterval(function() {
+            dataSource.entities.values.forEach(c => {
+                c.polyline.material = colors[parseInt(Math.random() * colors.length)];
+                c.polyline.extrudedHeight = 100;
+            });
+        },1000);
+    });
+</script>
+<noscript>
+    // 1~148
+    var c = document.getElementsByClassName('nameContainer');
+    var colors = [];
+    for (var i = 1;i < 149;i++) {
+        colors.push(c[i].childNodes[1].childNodes[6].textContent.trim());
+    }
+</noscript>
+</body>
+</html>

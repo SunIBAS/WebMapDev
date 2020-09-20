@@ -243,7 +243,7 @@ const installMarkerAndGraphicManager = function (srcPath) {
                 pickFeature.query(p.src);
             });
         },
-        initVectorPickFeature(layerProvider) {
+        initVectorPickFeature(layerProvider,showFn) {
             if (typeof showFn === "string" && showFn in PickFeature.defaultShowPop) {
                 showFn = PickFeature.defaultShowPop[showFn].bind(null,addPopPanel);
             }

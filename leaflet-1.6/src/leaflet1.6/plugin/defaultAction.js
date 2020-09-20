@@ -128,3 +128,41 @@ function initDraw(mapName) {
         })
     });
 }
+
+function initGeoman(mapName) {
+    let map = window[mapName];
+    let tmp = {};
+    map.pm.addControls({
+        position: 'topleft',
+        // drawCircle: false,
+    });
+    map.on('pm:drawend', (e) => {
+        console.log(e);
+        let mlys = map._layers
+        let lys = e.target._targets;
+        for (let i in lys) {
+            if (i in tmp) continue;
+            let id = lys[i]._leaflet_id;
+            if (id in tmp) {
+                tmp[id] = true;tmp[i] = true;
+                continue;
+            } else {
+                tmp[id] = true;tmp[i] = true;
+                if (!(id in mlys)) continue;
+                // 绑定点击事件
+                console.log(`绑定事件 geoman ${id}`);
+                mlys[id].on('click',function (geo) {
+                    let geojson = geo.target;
+                    window.$emit({geoJson:geojson.toGeoJSON(),layerId: geojson._leaflet_id},'geoman','click');
+                });
+            }
+        }
+    });
+}
+
+function initGraphic(mapName) {
+    // geojson 是 Graphic.js 中的 GeoJson 实例
+    window.geoJsonManager = new GeoJsonManager(window[mapName],function (geojson) {
+        window.$emit({geoJson:geojson.geojson,layerId: geojson.id},'GeoJsonManager','click');
+    });
+}

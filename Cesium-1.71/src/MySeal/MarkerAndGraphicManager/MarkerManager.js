@@ -253,6 +253,7 @@ class MarkerManager {
     // 添加自定义的标记
     // position click.position
     addCustomMarker(position,{description,text},cb) {
+        console.log(`pointion:${position}`)
         let $this = this;
         this.pick({tar: "custom"},function ({id}) {
             setTimeout(() => {
@@ -261,7 +262,6 @@ class MarkerManager {
                 (cb || (()=>{}))();
             });
         })({position});
-        console.log(`pointion:${position}`)
     }
     get(id){
         if(this.has(id)){

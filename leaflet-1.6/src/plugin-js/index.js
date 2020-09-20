@@ -48,7 +48,10 @@ const insertJSandCSS = (ifr,cb,files) => {
         doIt();
     });
 }
-const ifrInstance = function (id,action) {
+// 如果 id 是 window 表示不使用 iframe 而是使用当前页面
+const ifrInstance = function (id,action,{center,level}) {
+    center = center || {lat: 45,lng:65};
+    level = level || 5;
     let iframe = null;
     // eslint-disable-next-line no-unused-vars
     let mapId = null;
@@ -67,7 +70,12 @@ const ifrInstance = function (id,action) {
     // todo 修改 action
     // eslint-disable-next-line no-console
     action = action || console.log;
-    if (id) {
+    if (id === window) {
+        iframe = {
+            contentWindow: window,
+            contentDocument: document,
+        };
+    } else if (id) {
         iframe = document.getElementById(id);
     } else {
         iframe = document.getElementsByTagName('iframe')[0];
@@ -76,9 +84,15 @@ const ifrInstance = function (id,action) {
         myMap() {
             return myMap;
         },
+        getMap() {
+            return iframe.contentWindow[myMap];
+        },
         // 完成最为基础的 js 和 css 注入
-        initFrameBase(cb) {
-            iframe.contentWindow.location.reload();
+        // otherFile = ['脚本地址.js','脚本地址.css']
+        initFrameBase(cb,otherFile) {
+            if (iframe.contentWindow !== window) {
+                iframe.contentWindow.location.reload();
+            }
             let files = ["/leaflet1.6/plugin/defaultAction.js",
                 "/leaflet1.6/leaflet.js","/leaflet1.6/plugin/ibasGroup/group.js",
                 "/leaflet1.6/plugin/ibasGroup/group.js",
@@ -86,7 +100,7 @@ const ifrInstance = function (id,action) {
                 "/leaflet1.6/plugin/Utils/ShowOneLayer.js",
                 "/leaflet1.6/plugin/getInfo/GetRasterInfo.js",
                 "/leaflet1.6/leaflet.css","/leaflet1.6/plugin/ibasGroup/group.css",
-            ].map(_ => (window.relativePath || "") + _);
+            ].map(_ => (window.relativePath || "") + _).concat(otherFile || []);
             setTimeout(function () {
                 insertJSandCSS(iframe,cb,files);
                 iframe.contentDocument.body.style.margin = "0";
@@ -112,10 +126,11 @@ const ifrInstance = function (id,action) {
             mapId = _mapId || "map";
             this.insertDomToBody('div',function (dom) {
                 dom.id = _mapId;
-                dom.style.width = "100%";
-                dom.style.height = "100%";
+                dom.style.width = "100vw";
+                dom.style.height = "100vh";
             });
-            this.eval(`window.${myMap} = L.map('${_mapId}').setView([45,65], 5);
+            // todo 这里屏蔽了 双击 放大 地图 的操作
+            this.eval(`window.${myMap} = L.map('${_mapId}',{doubleClickZoom: false}).setView([${center.lat},${center.lng}], ${level});
             window.${mapGroup} = manageMapGroupInstance(buildLayerControl(${myMap}));`);
             this.eval(`window.${showOneLayerInstance} = ShowOneLayer().init(window.${myMap})`);
             this.eval(`window.${getRasterInfo} = getRasterInfo().init(window.${myMap})`);
