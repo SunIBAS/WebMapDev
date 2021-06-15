@@ -1,5 +1,5 @@
 let MarkerControlPanel = class {
-    constructor(option,{MarkManager,GraphicManager}) {
+    constructor(option,{MarkManager,GraphicManager},{marker,line,polygon},) {
         this.viewer = null;
         this.divId = "marker_manager_panel_" + (new Date().getTime());
         this.divDom = null;
@@ -34,6 +34,24 @@ let MarkerControlPanel = class {
             // 这个是信息框 取消按钮
             cancelBtn: null,
         };
+
+        this.showTypes = {
+            marker: marker || false,
+            line: line || false,
+            polygon: polygon || false
+        }
+    }
+    // 更新哪些控件显示哪些不显示
+    updateIconStatus({marker,line,polygon}) {
+        this.showTypes = {
+            marker: marker || this.showTypes.marker,
+            line: line || this.showTypes.line,
+            polygon: polygon || this.showTypes.polygon
+        }
+        for (let i in this.showTypes) {
+            this.dom[i + "Li"].style.display = this.showTypes[i] ? "block" : "none";
+        }
+        return this;
     }
 
     init (viewer) {

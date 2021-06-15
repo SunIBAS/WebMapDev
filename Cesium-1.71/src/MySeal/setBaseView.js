@@ -1,4 +1,4 @@
-function setBaseView(viewer,optioins,center) {
+function setBaseView(viewer,optioins,center,imageryProvider) {
     // 将底图设置为空，避免地图初始化时去获取token，获取token需要等待而且失败概率很大
     if (typeof viewer == "string") {
         window.viewer = viewer = new Cesium.Viewer(viewer, Object.assign({
@@ -10,7 +10,7 @@ function setBaseView(viewer,optioins,center) {
             navigationHelpButton:false, //隐藏帮助按钮
             selectionIndicator: false,
             infoBox: false,
-            imageryProvider : new Cesium.OpenStreetMapImageryProvider({
+            imageryProvider : imageryProvider || new Cesium.OpenStreetMapImageryProvider({
                 url : '-'
             }),
         },(optioins || {})));
@@ -27,7 +27,7 @@ function setBaseView(viewer,optioins,center) {
             return Cesium.Cartesian3.fromDegrees(65, 45, 4000000);
         }
     })(center);
-    viewer.scene.camera.setView({
+    let baseView = {
         // 初始化相机经纬度
         destination: destination,//Cesium.Cartesian3.fromDegrees(65, 45, 4000000),
         orientation: {
@@ -35,7 +35,8 @@ function setBaseView(viewer,optioins,center) {
             pitch: -1.57072018602691, //从上往下看为-90
             roll: 0
         }
-    });
+    };
+    viewer.scene.camera.setView(baseView);
     // 删除版权信息和小时钟
     setTimeout(function () {
         viewer._cesiumWidget._creditContainer.parentNode.removeChild(viewer._cesiumWidget._creditContainer); //去掉版权信息
@@ -154,5 +155,6 @@ function setBaseView(viewer,optioins,center) {
     //     });
     // });
 
+    viewer._baseView = baseView;
     return viewer;
 }

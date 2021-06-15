@@ -10,18 +10,37 @@ class TimeLine {
         this.viewer = viewer;
         this.startTime = '';
         this.endTime = '';
-        this.setDay(startTime, 'startTime');
-        this.setDay(endTime, 'endTime');
+        startTime ? this.setDay(startTime, 'startTime') : false;
+        endTime ? this.setDay(endTime, 'endTime') : false;
         this.startTimeMill = new Date(startTime).getTime();
-        this.url = url;
-        this.parameters = parameters;
-        this.parametersFromTime = parametersFromTime;
+        this.url = url || '';
+        this.parameters = parameters || {};
+        this.parametersFromTime = parametersFromTime || {};
         this.options = Object.assign({
             alpha: 0.5,
             speed: 3600 * 24 * 1000
         }, (options || {}));
         // this.destroyIndex = -1;
         viewer.clock.shouldAnimate = true;
+        this.onTimelineChange = () => {};
+        let $this = this;
+        viewer.timeline.addEventListener('settime', function(e) {
+            $this.onTimelineChange(e.timeJulian,CesiumUtils.julianIntToDate(e.timeJulian.dayNumber,$this.startTimeMill));
+        }, false);
+        //回调函数
+        let id = setInterval(() => {
+            $this.onTimelineChange(viewer.clock.currentTime,CesiumUtils.julianIntToDate(viewer.clock.currentTime.dayNumber,$this.startTimeMill));
+        },200);
+        // viewer.clock.onTick.addEventListener(function () {
+        //     var currentTime = viewer.clock.currentTime.secondsOfDay;
+        //     $this.onTimelineChange(currentTime,CesiumUtils.julianIntToDate(currentTime));
+        // });
+        this.providerId = null;
+    }
+
+    setTimeLineChangeEvent(fn) {
+        this.onTimelineChange = fn;
+        return this;
     }
 
     setDay(val, name) {
@@ -49,8 +68,10 @@ class TimeLine {
 
     // https://huangwang.github.io/2018/06/09/Cesium小部件animation和timeline的系统时间显示/
     UTC() {
-        this.viewer.animation.viewModel.dateFormatter = localeDateTimeFormatter
-        this.viewer.animation.viewModel.timeFormatter = localeTimeFormatter
+        if (this.viewer.animation) {
+            this.viewer.animation.viewModel.dateFormatter = localeDateTimeFormatter
+            this.viewer.animation.viewModel.timeFormatter = localeTimeFormatter
+        }
         this.viewer.timeline.makeLabel = function (time) {
             return localeDateTimeFormatter(time)
         }
@@ -84,6 +105,16 @@ class TimeLine {
     set(startTime, endTime, url, parameters, parametersFromTime, options) {
         if (this.provider) {
             // console.warn("这里及其不稳定，请谨慎使用")
+            let ind = 0;
+            for (;ind < this.viewer.imageryLayers._layers.length;ind++) {
+                if (this.viewer.imageryLayers._layers[ind].imageryProvider.id === this.providerId) {
+                    break;
+                }
+            }
+            if (ind < this.viewer.imageryLayers._layers.length) {
+                this.viewer.imageryLayers.remove(this.viewer.imageryLayers._layers[ind]);
+            }
+            // console.warn("这里及其不稳定，请谨慎使用")
             this.viewer.imageryLayers.remove(this.provider);
         }
         this.setDay(startTime, 'startTime');
@@ -94,6 +125,10 @@ class TimeLine {
         this.parametersFromTime = parametersFromTime;
         this.options = Object.assign(this.options, (options || {}));
         return this;
+    }
+
+    gid() {
+        return "tl_" + (new Date().getTime()) + "_" + parseInt(Math.random() * 1000000);
     }
 
     // 修改完参数后必调的函数

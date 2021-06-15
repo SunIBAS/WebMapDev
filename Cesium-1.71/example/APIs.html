@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<!--    <script src="./lib/config/devUrls.js"></script>-->
+    <script src="./../src/MySeal/initMapViews.js"></script>
+<!--    <script src="./../src/CesiumUnminified/Cesium.js"></script>-->
+    <script src="./../src/MySeal/apis.js"></script>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+        #mapContainer {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<div id="mapContainer"></div>
+<script>
+    let debug = true;
+    let noMap = false;
+    window.initOk = function() {
+        console.log("全部加载完成");
+    };
+    // 测试聚合
+    function createClusterDataSource() {
+        const _SPECI = [
+            {
+                "name": "17-B-01",
+                "hei": " 564.15",
+                "lat": "44.85708237",
+                "long": "78.20967865"
+            }, {
+                "name": "17-B-02",
+                "hei": "没有GPS信息",
+                "lat": "44.9683609",
+                "long": "78.29842377"
+            }, {
+                "name": "18-A-03",
+                "hei": " 365.00",
+                "lat": "45.36131015",
+                "long": "77.78029507"
+            }, {
+                "name": "18-A-05",
+                "hei": " 418.00",
+                "lat": "45.15613746",
+                "long": "78.01816439"
+            }, {
+                "name": "18-B-01",
+                "hei": " 459.42",
+                "lat": "44.92421341",
+                "long": "78.11113739"
+            },
+            {
+                "name": "18-B-04",
+                "hei": "没有GPS信息",
+                "lat": "没有GPS信息",
+                "long": "没有GPS信息"
+            }, {
+                "name": "18-B-05",
+                "hei": " 392.78",
+                "lat": "45.20065308",
+                "long": "77.93157196"
+            }, {
+                "name": "18-B-06",
+                "hei": "没有GPS信息",
+                "lat": "45.36164856",
+                "long": "77.78231812"
+            }, {
+                "name": "18-B-08",
+                "hei": "没有GPS信息",
+                "lat": "45.22710037",
+                "long": "77.96652222"
+            }, {
+                "name": "18-B-09",
+                "hei": " 421.27",
+                "lat": "45.15671539",
+                "long": "78.01837158"
+            },
+            {
+                "name": "19-A-01",
+                "hei": " 579.00",
+                "lat": "45.07291508",
+                "long": "78.42384712"
+            }, {
+                "name": "19-A-03",
+                "hei": " 600.00",
+                "lat": "45.27986683",
+                "long": "78.53624825"
+            }, {
+                "name": "19-A-04",
+                "hei": " 476.00",
+                "lat": "45.31877002",
+                "long": "78.60052537"
+            }, {
+                "name": "19-A-05",
+                "hei": " 371.00",
+                "lat": "45.43336678",
+                "long": "78.62905596"
+            }, {
+                "name": "19-A-06-1",
+                "hei": " 362.00",
+                "lat": "45.51205911",
+                "long": "78.62008594"
+            },
+            {
+                "name": "19-A-06-2",
+                "hei": " 369.00",
+                "lat": "45.51108313",
+                "long": "78.62069225"
+            }, {
+                "name": "19-A-07",
+                "hei": " 804.00",
+                "lat": "44.70537584",
+                "long": "78.11176789"
+            }, {
+                "name": "19-A-08",
+                "hei": " 801.00",
+                "lat": "44.57048991",
+                "long": "77.92618653"
+            }, {
+                "name": "19-A-09",
+                "hei": " 1032.0",
+                "lat": "44.24640837",
+                "long": "77.7108919"
+            }, {
+                "name": "19-B-02",
+                "hei": " 573.53",
+                "lat": "45.07388687",
+                "long": "78.4240799"
+            },
+            {
+                "name": "19-B-03",
+                "hei": " 605.01",
+                "lat": "45.20003128",
+                "long": "78.4947052"
+            }, {
+                "name": "19-B-04",
+                "hei": " 603.93",
+                "lat": "45.27946854",
+                "long": "78.53575897"
+            }, {
+                "name": "19-B-07",
+                "hei": " 362.58",
+                "lat": "45.49917603",
+                "long": "78.60897064"
+            }, {
+                "name": "19-B-09",
+                "hei": " 765.41",
+                "lat": "44.72595596",
+                "long": "78.12163544"
+            }, {
+                "name": "19-B-10",
+                "hei": " 766.24",
+                "lat": "44.58771515",
+                "long": "77.94826508"
+            },
+            {
+                "name": "20-A-01",
+                "hei": " 340.00",
+                "lat": "44.243075",
+                "long": "77.71101389"
+            }, {
+                "name": "20-A-02",
+                "hei": " 336.00",
+                "lat": "44.89514098",
+                "long": "76.06510152"
+            }, {
+                "name": "20-A-03",
+                "hei": " 326.00",
+                "lat": "44.98032651",
+                "long": "75.66793437"
+            }, {
+                "name": "20-A-04",
+                "hei": " 327.00",
+                "lat": "44.99962535",
+                "long": "75.45031005"
+            }, {
+                "name": "20-A-05",
+                "hei": " 327.00",
+                "lat": "45.06247401",
+                "long": "75.27009666"
+            },
+            {
+                "name": "20-A-06",
+                "hei": " 313.00",
+                "lat": "45.0421233",
+                "long": "74.99751272"
+            }, {
+                "name": "20-A-07",
+                "hei": " 343.00",
+                "lat": "44.9898831",
+                "long": "75.80818534"
+            }, {
+                "name": "20-B-03",
+                "hei": " 329.79",
+                "lat": "44.97177124",
+                "long": "75.69464111"
+            }, {
+                "name": "20-B-04",
+                "hei": " 331.90",
+                "lat": "44.99027252",
+                "long": "75.44719696"
+            }, {
+                "name": "20-B-05",
+                "hei": " 323.52",
+                "lat": "45.02782822",
+                "long": "75.37393188"
+            },
+            {
+                "name": "20-B-06",
+                "hei": " 322.01",
+                "lat": "45.06110382",
+                "long": "75.26909637"
+            }, {
+                "name": "20-B-07",
+                "hei": " 309.79",
+                "lat": "45.03436661",
+                "long": "74.99674988"
+            }, {
+                "name": "20-B-08",
+                "hei": " 329.52",
+                "lat": "44.99214554",
+                "long": "75.80259705"
+            }, {
+                "name": "21-A-01",
+                "hei": " 372.00",
+                "lat": "44.75149231",
+                "long": "76.41840855"
+            }, {
+                "name": "21-A-02",
+                "hei": " 371.00",
+                "lat": "44.65857387",
+                "long": "76.576037"
+            },
+            {
+                "name": "21-A-03",
+                "hei": " 360.00",
+                "lat": "44.61637978",
+                "long": "76.63440964"
+            }, {
+                "name": "21-A-04",
+                "hei": " 366.00",
+                "lat": "44.58008555",
+                "long": "76.65045704"
+            }, {
+                "name": "21-A-05",
+                "hei": " 418.75",
+                "lat": "44.50771667",
+                "long": "76.74092222"
+            }, {
+                "name": "21-A-06",
+                "hei": " 429.00",
+                "lat": "44.39155182",
+                "long": "76.82629518"
+            }, {
+                "name": "21-A-07",
+                "hei": " 503.00",
+                "lat": "44.20722737",
+                "long": "77.02226173"
+            },
+            {
+                "name": "21-A-08",
+                "hei": " 646.00",
+                "lat": "43.99722891",
+                "long": "77.11150958"
+            }, {
+                "name": "21-B-01",
+                "hei": " 364.74",
+                "lat": "44.74274445",
+                "long": "76.43498993"
+            }, {
+                "name": "21-B-02",
+                "hei": " 364.26",
+                "lat": "44.64502335",
+                "long": "76.59430695"
+            }, {
+                "name": "21-B-03-1",
+                "hei": "没有GPS信息",
+                "lat": "没有GPS信息",
+                "long": "没有GPS信息"
+            }, {
+                "name": "21-B-03-2",
+                "hei": "没有GPS信息",
+                "lat": "没有GPS信息",
+                "long": "没有GPS信息"
+            },
+            {
+                "name": "21-B-04-1",
+                "hei": "没有GPS信息",
+                "lat": "44.580904",
+                "long": "76.651252"
+            }, {
+                "name": "21-B-04-2",
+                "hei": "没有GPS信息",
+                "lat": "44.580904",
+                "long": "76.651252"
+            }, {
+                "name": "21-B-06",
+                "hei": " 436.66",
+                "lat": "44.39265442",
+                "long": "76.82753754"
+            }, {
+                "name": "21-B-07",
+                "hei": " 559.65",
+                "lat": "44.18686676",
+                "long": "77.03649902"
+            }, {
+                "name": "21-B-08",
+                "hei": "没有GPS信息",
+                "lat": "43.96840668",
+                "long": "77.12695313"
+            },
+            {
+                "name": "22-A-01",
+                "hei": " 468.00",
+                "lat": "43.75541623",
+                "long": "77.02446982"
+            }, {
+                "name": "22-A-02-1",
+                "hei": " 443.00",
+                "lat": "43.75234384",
+                "long": "77.13437911"
+            }, {
+                "name": "22-A-02-2",
+                "hei": " 443.00",
+                "lat": "43.75234384",
+                "long": "77.13437911"
+            }, {
+                "name": "22-A-03",
+                "hei": " 445.00",
+                "lat": "43.69271242",
+                "long": "77.38107891"
+            }, {
+                "name": "22-A-04",
+                "hei": " 496.00",
+                "lat": "43.62007318",
+                "long": "77.46363845"
+            },
+            {
+                "name": "22-A-05",
+                "hei": " 526.00",
+                "lat": "43.57926666",
+                "long": "77.99989761"
+            }, {
+                "name": "22-A-06",
+                "hei": " 577.00",
+                "lat": "43.53389848",
+                "long": "77.65147532"
+            }, {
+                "name": "22-A-07",
+                "hei": " 577.00",
+                "lat": "43.4675195",
+                "long": "77.08321264"
+            }, {
+                "name": "22-A-08",
+                "hei": " 589.00",
+                "lat": "43.42774498",
+                "long": "76.98432704"
+            }, {
+                "name": "22-B-01",
+                "hei": " 517.33",
+                "lat": "43.75567627",
+                "long": "77.01634216"
+            },
+            {
+                "name": "22-B-02-1",
+                "hei": " 488.78",
+                "lat": "43.63627625",
+                "long": "77.04692841"
+            }, {
+                "name": "22-B-02-2",
+                "hei": " 491.47",
+                "lat": "43.63541031",
+                "long": "77.04650116"
+            }, {
+                "name": "22-B-04",
+                "hei": " 487.02",
+                "lat": "43.65110397",
+                "long": "77.08988953"
+            }, {
+                "name": "22-B-05",
+                "hei": " 455.37",
+                "lat": "43.68509674",
+                "long": "77.38957214"
+            }, {
+                "name": "22-B-06",
+                "hei": " 529.72",
+                "lat": "43.56555939",
+                "long": "77.48171997"
+            },
+            {
+                "name": "22-B-07",
+                "hei": " 611.91",
+                "lat": "43.49250412",
+                "long": "77.47683716"
+            }, {
+                "name": "22-B-08",
+                "hei": " 558.60",
+                "lat": "43.53742218",
+                "long": "77.78670502"
+            }, {
+                "name": "22-B-09",
+                "hei": " 522.00",
+                "lat": "43.56579971",
+                "long": "77.86354828"
+            }, {
+                "name": "22-B-10",
+                "hei": " 539.56",
+                "lat": "43.54277039",
+                "long": "77.74279022"
+            }, {
+                "name": "22-B-11",
+                "hei": " 571.70",
+                "lat": "43.53273392",
+                "long": "77.61428833"
+            },
+            {
+                "name": "22-B-12",
+                "hei": "没有GPS信息",
+                "lat": "43.44760895",
+                "long": "76.99990082"
+            }, {
+                "name": "22-B-13-1",
+                "hei": "没有GPS信息",
+                "lat": "43.438694",
+                "long": "76.99494934"
+            }];
+        var extent = {"up":43.24337671317779,"down":45.868262402215585,"left":74.46891624620503,"right":78.91420658872792,"height":301456};
+        window.apis.createPointEntityCluster(null,null,{
+            points: _SPECI,
+            lat: 'lat',
+            long: 'long',
+            label: 'name'
+        });
+        CesiumUtils.flyToExtent(extent,window.viewer);
+    }
+    initMapViews("./../src/MySeal/",function (ret) {
+            let viewer = noMap ? "" : setBaseView("mapContainer",{ timeline: true },null,/*new Cesium.UrlTemplateImageryProvider({
+                url: 'http://mt0.google.cn/vt/lyrs=m@160000000&hl=zh-CN&gl=CN&src=app&y={y}&x={x}&z={z}&s=Ga',
+            })*/);
+            window.viewer = viewer;
+            window._map_on_click_ = function() {};
+            ret.initMarkerAndGraphicManager(window.viewer,null,panelCallback);
+            // ret.initMarkerAndGraphicManager(window.viewer,window._map_on_click_);
+            window.MarkerAndGraphicManager.panel.updateIconStatus({ polygon: true });
+            window.apis = new Apis(/*obj.*/viewer._baseView).init(window.viewer,window.MarkerAndGraphicManager);
+            mapHandle.DrawHelper.initialViewer(window.viewer);
+            let id = setInterval(() => {
+                window.apis.addMark({lat:1,lng:1},"","","",function (err) {
+                    if (!err) {
+                        window.apis.removeAll();
+                        window.apis.initOk();
+                        clearInterval(id);
+                    }
+                });
+            },500);
+        },
+        [
+            // './request.js','./SelectionPanel.js','./SplitPanel.js'
+        ].map(_ => debug ? _ + "?t=" + (new Date().getTime()) : _),
+        [],{
+            noMap,
+            offset: {
+                x: 0,y: 0
+            },
+            _eChartConfig: false,//['bar','RangeLine','SimpleMultiLine','SanKey','ZoomBar','AnyEchart']
+        },"",[
+            "./../src/CesiumUnminified/Widgets/widgets.css",
+            "./../src/CesiumUnminified/Cesium.js",
+        ],function () {
+            console.log('脚本加载完成');
+        });
+</script>
+</body>
+</html>
