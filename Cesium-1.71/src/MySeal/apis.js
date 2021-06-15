@@ -637,7 +637,7 @@ class Apis {
         let name = `datasource_` + new Date().getTime() + '_' + parseInt(Math.random() * 1000);
         this.clusterDataSource = new Cesium.CustomDataSource(name);
         // this.clusterDataSource.entities.add(entity);
-        viewer.dataSources.add(this.clusterDataSource);
+        this.viewer.dataSources.add(this.clusterDataSource);
 
         this.clusterDataSource.clustering.enabled = true; //是否聚合
         this.clusterDataSource.clustering.pixelRange = pixelRange; //聚合范围（单位px）
